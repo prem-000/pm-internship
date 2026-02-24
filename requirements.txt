@@ -11,3 +11,4 @@ google-generativeai
 pydantic[email]
 numpy
 pandas
+pydantic-settings

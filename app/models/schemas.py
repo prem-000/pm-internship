@@ -55,7 +55,14 @@ class MatchDetails(BaseModel):
 class RecommendationResponse(BaseModel):
     internship_id: str
     title: str
+    organization: Optional[str] = None
+    apply_url: Optional[str] = None
+    department_page: Optional[str] = None
+    location: Optional[str] = None
     score: float
     match_details: MatchDetails
     score_breakdown: ScoreBreakdown
-    learning_roadmap: str
+    learning_roadmap: Optional[str] = None
+
+    class Config:
+        extra = "allow"

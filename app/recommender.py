@@ -37,14 +37,21 @@ class InternshipRecommender:
         
         self.internships_df = pd.DataFrame(internships)
         
+        # Ensure 'job_description' exists to avoid KeyError
+        if 'job_description' not in self.internships_df.columns:
+            print("ℹ️ 'job_description' column missing. Synthesizing from available fields.")
+            self.internships_df['job_description'] = self.internships_df.apply(
+                lambda row: f"{row.get('title', '')} {row.get('sector', '')} {' '.join(row.get('required_skills', []))}" if isinstance(row.get('required_skills'), list) else f"{row.get('title', '')} {row.get('sector', '')}",
+                axis=1
+            )
+
         # Precompute TF-IDF vectors for internship descriptions
-        # Using job_description for semantic matching
         descriptions = self.internships_df['job_description'].fillna("").tolist()
-        if descriptions:
+        if descriptions and any(d.strip() for d in descriptions):
             self.internship_vectors = self.tfidf_vectorizer.fit_transform(descriptions)
             print(f"📊 Recommender fitted with {len(internships)} internships and TF-IDF vectors.")
         else:
-            print("⚠️ No job descriptions found for vectorization.")
+            print("⚠️ No valid job descriptions found for vectorization.")
 
     def calculate_skill_match(self, user_skills: list, required_skills: list):
         if not required_skills:
@@ -82,21 +89,17 @@ class InternshipRecommender:
 
         results = []
         for i, row in self.internships_df.iterrows():
-            skill_match_pct, matched, missing = self.calculate_skill_match(user_skills, row['required_skills'])
+            skill_match_pct, matched, missing = self.calculate_skill_match(user_skills, row.get('required_skills', []))
             
-            # Minimum threshold: If skill overlap < 10% → discard (lowered from 25% since we have TF-IDF now)
+            # Minimum threshold: If skill overlap < 10% → discard
             if skill_match_pct < 0.10:
                 continue
                 
             semantic_score = float(semantic_similarities[i])
-            sector_score = calculate_sector_match(preferred_sector, row['sector'])
-            location_score = calculate_location_match(preferred_location, row['location'])
+            sector_score = calculate_sector_match(preferred_sector, row.get('sector'))
+            location_score = calculate_location_match(preferred_location, row.get('location'))
             
-            # New Hybrid Scoring Formula (PRD Updated):
-            # Skill Match: 35%
-            # Semantic Similarity: 35%
-            # Sector Alignment: 20%
-            # Location: 10%
+            # Hybrid Scoring Formula:
             final_score = (
                 0.35 * skill_match_pct +
                 0.35 * semantic_score +
@@ -104,9 +107,14 @@ class InternshipRecommender:
                 0.10 * location_score
             ) * 100
             
-            results.append({
-                "internship_id": str(row['_id']),
-                "title": row['title'],
+            # Start with the full document to preserve all metadata
+            internship_data = row.to_dict()
+            if '_id' in internship_data:
+                internship_data['_id'] = str(internship_data['_id'])
+            
+            # Update with computed fields
+            internship_data.update({
+                "internship_id": str(internship_data.get('_id', '')),
                 "score": round(float(final_score), 2),
                 "match_details": {
                     "matched_skills": matched,
@@ -118,10 +126,15 @@ class InternshipRecommender:
                     "semantic_similarity": round(semantic_score * 100, 2),
                     "sector_alignment": round(sector_score * 100, 2),
                     "location_match": round(location_score * 100, 2)
-                },
-                "apply_url": row.get('apply_url'),
-                "platform": row.get('platform')
+                }
             })
+            
+            # Ensure specific fields requested by prompt are present or null
+            for field in ["organization", "apply_url", "department_page", "location"]:
+                if field not in internship_data:
+                    internship_data[field] = None
+            
+            results.append(internship_data)
 
         results.sort(key=lambda x: x['score'], reverse=True)
         return results[:top_n]
