@@ -1,240 +1,114 @@
-🚀 AI-Based Internship Recommendation Engine
+🚀 AI-Based Adaptive Internship Recommendation Engine v2
 
-An intelligent, hybrid AI system that matches students with highly relevant internships using semantic similarity, skill-gap analysis, and generative learning roadmaps.
+An intelligent, adaptive AI system that matches students with highly relevant internships using hybrid semantic matching, behavioral learning, and impact-based skill gap analysis.
 
-Built for scalability, transparency, and real-world deployment.
+Built for scalability, personalization, and real-world career growth.
 
 🎯 Problem Statement
-
-Students are overwhelmed by long, irrelevant internship listings.
-Most portals return keyword-based results with no personalization.
+- Students are overwhelmed by long, irrelevant internship listings.
+- Most portals return static, keyword-based results with no personalization or learning capability.
 
 This system solves that by:
-
-Ranking internships using hybrid AI scoring
-
-Identifying missing skills
-
-Generating structured learning roadmaps
-
-Providing transparent match breakdowns
+- **Adaptive Ranking**: Learns from user interactions (clicks, saves, applications) to re-weight results.
+- **Impact-Based Gap Analysis**: Identifies missing skills and quantifies their impact on your career visibility.
+- **Generative Roadmaps**: Provides structured learning paths via Gemini AI.
+- **Hybrid Scoring**: Combines TF-IDF semantic similarity with fuzzy skill matching.
 
 🏗 System Architecture
-User Profile
+```text
+User Profile + Interaction History
     ↓
-Hybrid Scoring Engine
+Hybrid Scoring Engine (Base Score)
     ↓
-Skill-Gap Analyzer
+Behavior Adjustment Layer (Bonus/Penalty)
     ↓
-TF-IDF Semantic Matching
+Impact-Based Gap Analysis Engine
     ↓
-Gemini Roadmap Generator
+Gemini AI Roadmap Generator
     ↓
-Ranked Recommendation Response
+Personalized Recommendation Response
+```
+
 🧠 Core Features
-1️⃣ Hybrid Recommendation Engine
+1️⃣ Adaptive Scoring Engine (V2)
+A multi-layered scoring model that evolves with the user:
+- **Base Score (70%)**: TF-IDF Semantic Similarity + Fuzzy Skill Match.
+- **Sector Alignment (20%)**: Historical preference for specific industries.
+- **Location Match (10%)**: Remote vs. City preference.
+- **Behavior Bonus**: Dynamic points added/subtracted based on `viewed`, `saved`, `applied`, or `rejected` actions.
 
-A weighted scoring model combining:
+2️⃣ Impact-Based Skill Gap Analysis
+For each gap identified, the system calculates:
+- **Estimated Score Gain**: The precise increase in match percentage if the skill is acquired.
+- **Internships Unlocked**: The number of additional opportunities in the database the user would become relevant for.
+- **Impact Tiers**: Categories gaps into *High*, *Medium*, and *Low* impact for prioritized learning.
 
-Component	Weight	Purpose
-Skill Match	35%	Fuzzy skill comparison
-TF-IDF Semantic Similarity	35%	Full job_description analysis
-Sector Alignment	20%	Preferred industry
-Location Match	10%	Remote / city preference
-🔹 Semantic Matching
+3️⃣ Interaction Tracking & Profiling
+A dedicated behavioral layer that captures:
+- **Actions**: Track user intent across the platform.
+- **Automated Profiling**: Aggregates weights for sectors and skills to build a "latent preference" profile for every user.
 
-Uses:
-
-TfidfVectorizer
-
-Cosine similarity
-
-n-grams (1,2)
-
-Stopword removal
-
-Sublinear TF scaling
-
-Vectorization is computed once at startup for performance.
-
-2️⃣ Skill-Gap Analysis
-
-For each internship:
-
-Compares user skills vs required skills
-
-Uses fuzzy matching (Rapidfuzz)
-
-Detects synonyms (JS vs JavaScript)
-
-Returns:
-
-Skill match %
-
-Missing skills list
-
-Example:
-
-{
-  "missing_skills": ["Docker", "TensorFlow"],
-  "skill_match_percentage": 68
-}
-3️⃣ Gemini AI Learning Roadmaps
-
-For each missing skill:
-
-Generates 4–5 week structured learning path
-
-Includes milestones
-
-Includes curated resource guidance
-
-Powered by:
-
-Google Gemini 1.5 Pro API
-
-Optimized with caching to avoid redundant calls.
-
-4️⃣ Transparent Scoring Breakdown
-
-Each recommendation includes:
-
-{
-  "match_score": 82,
-  "score_breakdown": {
-    "skill_match": 70,
-    "semantic_similarity": 88,
-    "sector_alignment": 100,
-    "location_match": 0
-  }
-}
-
-Users understand why they were matched.
+4️⃣ Gemini AI Learning Roadmaps
+For each missing skill, the system generates a 4–5 week structured learning path:
+- Week-by-week milestones.
+- Curated resource guidance.
+- Powered by **Google Gemini 1.5 Pro**.
 
 🛠 Tech Stack
-Layer	Technology
-Backend	FastAPI (Async)
-Database	MongoDB Atlas (Motor)
-NLP	Scikit-learn (TF-IDF)
-Fuzzy Matching	Rapidfuzz
-AI/LLM	Google Gemini 1.5 Pro
-Auth	JWT + Passlib
-Rate Limiting	SlowAPI
-🔄 Recommendation Pipeline
-
-Fetch user profile
-
-Filter internships by sector
-
-Compute:
-
-Skill match score
-
-TF-IDF cosine similarity
-
-Location match
-
-Calculate hybrid score
-
-Identify missing skills
-
-Generate Gemini roadmap (if needed)
-
-Return top 3–5 ranked internships
-
-⚡ Performance Optimizations
-
-TF-IDF vectorizer fitted once at startup
-
-Internship vectors cached in memory
-
-Gemini responses cached per skill
-
-MongoDB indexed on:
-
-sector
-
-location
-
-internship_title
+| Layer | Technology |
+| :--- | :--- |
+| **Backend** | FastAPI (Async Python) |
+| **Database** | MongoDB Atlas |
+| **NLP** | Scikit-learn (TF-IDF Vectorization) |
+| **Similarity** | Cosine Similarity + Rapidfuzz |
+| **AI/LLM** | Google Gemini 1.5 Pro API |
+| **Authentication** | JWT + Argon2 Hashing |
 
 📡 API Endpoints
-🔐 Authentication
-POST /register
-POST /login
-📌 Recommendation
-POST /recommend/
+� Authentication
+- `POST /api/auth/register`: Create a new account (Gmail enforcement).
+- `POST /api/auth/login`: Secure access token generation.
 
-Response:
+📌 Recommendation & Behavior
+- `POST /api/recommend/`: Get personalized, adaptive recommendations.
+- `POST /api/interactions/`: Record actions (`viewed`, `saved`, `applied`, `rejected`) to train the engine.
 
-Top 3–5 internships
-
-Match score
-
-Missing skills
-
-Learning roadmap
-
-Score breakdown
-
-📊 Current Limitations
-
-Static hybrid weights (not yet adaptive)
-
-TF-IDF lexical, not embedding-based
-
-No behavioral feedback loop yet
-
-No resume parsing (planned)
-
-🔮 Roadmap (V3 Evolution)
-
-Behavioral click tracking
-
-Dynamic weight adjustment
-
-Embedding-based semantic similarity
-
-Resume PDF skill extraction
-
-Internship quality scoring
-
-Career trajectory recommendations
+� Performance & Stability
+- **Synthesis Engine**: Automatically handles missing data in internships by synthesizing descriptions from metadata.
+- **Vector Caching**: TF-IDF vectors are computed once at startup and reused for high performance.
+- **Rate Limiting**: Integrated SlowAPI for security and stability.
 
 🧪 Local Setup
-1️⃣ Clone Repository
-git clone <repo_url>
-cd ai-internship-engine
-2️⃣ Install Dependencies
-pip install -r requirements.txt
-3️⃣ Configure Environment Variables
+1. **Clone Repository**
+   ```bash
+   git clone <repo_url>
+   cd ai-internship-engine
+   ```
+2. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Configure Environment Variables**
+   Create a `.env` file with:
+   ```env
+   MONGODB_URI=your_mongo_uri
+   JWT_SECRET=your_secret
+   GOOGLE_API_KEY=your_gemini_key
+   ADMIN_DEFAULT_EMAIL=admin@gmail.com
+   ADMIN_DEFAULT_PASSWORD=your_password
+   ```
+4. **Run Server**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
-Create .env:
+📈 Why This Is Different
+| Traditional Portals | This Adaptive Engine |
+| :--- | :--- |
+| Keyword filtering | Semantic & Behavioral ranking |
+| Static results | Results evolve based on your actions |
+| No skill insight | Quantified "Impact" based gap analysis |
+| No guidance | AI-driven roadmap generation |
 
-MONGODB_URI=
-JWT_SECRET=
-GEMINI_API_KEY=
-ADMIN_DEFAULT_EMAIL=
-ADMIN_DEFAULT_PASSWORD=
-4️⃣ Run Server
-uvicorn main:app --reload
-📈 Why This Is Different From Traditional Portals
-Traditional Portals	This Engine
-Keyword filtering	Semantic ranking
-No personalization	Hybrid AI scoring
-No skill insight	Automated skill-gap detection
-No guidance	AI learning roadmap
-🏆 Intended Impact
-
-Reduce irrelevant internship discovery
-
-Increase application confidence
-
-Bridge skill gaps with structured learning
-
-Improve student placement readiness
-
-📌 Version
-
-Version: 2.1.0
-Status: Fully functional hybrid recommendation system with semantic matching and Gemini advisory integration.
+🏆 Version: 2.2.0
+**Status**: Fully functional Adaptive Recommendation System with interaction tracking and strategic gap insights.
