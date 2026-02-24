@@ -52,6 +52,16 @@ class MatchDetails(BaseModel):
     missing_skills: List[str]
     skill_match_percentage: float
 
+class GapImpact(BaseModel):
+    skill: str
+    estimated_score_gain: float
+    internships_unlocked: int
+
+class GapAnalysis(BaseModel):
+    high_impact_skills: List[GapImpact] = []
+    medium_impact_skills: List[GapImpact] = []
+    low_impact_skills: List[GapImpact] = []
+
 class RecommendationResponse(BaseModel):
     internship_id: str
     title: str
@@ -62,7 +72,12 @@ class RecommendationResponse(BaseModel):
     score: float
     match_details: MatchDetails
     score_breakdown: ScoreBreakdown
+    behavior_bonus: float = 0.0
+    gap_analysis: GapAnalysis = Field(default_factory=GapAnalysis)
     learning_roadmap: Optional[str] = None
 
     class Config:
         extra = "allow"
+class UserInteractionCreate(BaseModel):
+    internship_id: str
+    action: str  # viewed | saved | applied | rejected

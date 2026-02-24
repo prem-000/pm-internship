@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from .database import connect_to_mongo, close_mongo_connection, get_database
 from .recommender import recommender
-from .routers import auth_router, user_router, recommendation_router, admin_router
+from .routers import auth_router, user_router, recommendation_router, admin_router, interaction_router
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -52,6 +52,7 @@ app.include_router(auth_router.router)
 app.include_router(user_router.router)
 app.include_router(recommendation_router.router)
 app.include_router(admin_router.router)
+app.include_router(interaction_router.router)
 
 @app.get("/", tags=["Health"])
 async def health_check():
