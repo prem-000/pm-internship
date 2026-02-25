@@ -89,6 +89,9 @@ async def debug_internships():
         "distinct_roles": roles,
         "example_titles": titles[:10] if titles else []
     }
+@app.get("/")
+async def root():
+    return {"message": "hello"}
 
 if __name__ == "__main__":
     import uvicorn
