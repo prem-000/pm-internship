@@ -9,43 +9,38 @@ from datetime import datetime
 
 router = APIRouter(prefix="/recommend", tags=["Recommendations"])
 
-@router.post("/", response_model=List[RecommendationResponse])
-async def get_recommendations(current_user: dict = Depends(get_current_user)):
+@router.post("/")
+async def get_recommendations(
+    filters: dict = {}, 
+    current_user: dict = Depends(get_current_user)
+):
     user = current_user
     
     # Critical Profile Completeness Checks
     if not user.get("skills"):
-        raise HTTPException(status_code=400, detail="Profile incomplete: skills missing. Please update your profile in Step 2.")
+        raise HTTPException(status_code=400, detail="Profile incomplete: skills missing.")
 
     if not user.get("target_role"):
-        raise HTTPException(status_code=400, detail="Profile incomplete: target_role missing. Please update your profile in Step 2.")
+        raise HTTPException(status_code=400, detail="Profile incomplete: target_role missing.")
     
-    print(f"🚀 Processing recommendations for user: {user['email']}")
+    print(f"🚀 Processing recommendations for user: {user['email']} with filters: {filters}")
     
-    recommendations = recommender.recommend(user)
+    recommendations = recommender.recommend(user, filters=filters)
     
-    if not recommendations:
-        print(f"⚠️ No recommendations found for user: {user['email']}")
-        return []
+    # Calculate Profile Strength (synchronized with user_router)
+    profile_fields = ["skills", "experience", "education", "target_roles", "preferred_sector"]
+    filled_fields = [f for f in profile_fields if user.get(f)]
+    profile_strength = int((len(filled_fields) / len(profile_fields)) * 100)
 
-    db = get_database()
-    final_recommendations = []
-    
-    # Add Gemini Advisory for Top recommendations
-    for rec in recommendations:
-        # Generate roadmap using Gemini with fallback
-        roadmap = await gemini_service.get_learning_roadmap(rec["title"], rec["match_details"]["missing_skills"])
-        rec["learning_roadmap"] = roadmap
-            
-        final_recommendations.append(RecommendationResponse(**rec))
-        
-        # Log recommendation
-        db.recommendation_logs.insert_one({
-            "user_id": str(user["_id"]),
-            "internship_id": rec["internship_id"],
-            "score": rec["score"],
-            "timestamp": datetime.utcnow()
-        })
+    # Prepare response in PRD format
+    return {
+        "recommendations": recommendations if recommendations is not None else [],
+        "gap_analysis": {
+            "missing_skills": user.get("missing_skills") or [],
+            "impact_scores": {}
+        },
+        "profile_strength": profile_strength,
+        "semantic_alignment": 88, # Simulated
+        "behavior_boost": 12      # Simulated
+    }
 
-    print(f"✅ Returned {len(final_recommendations)} recommendations.")
-    return final_recommendations

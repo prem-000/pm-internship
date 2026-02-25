@@ -72,142 +72,156 @@ class InternshipRecommender:
         if db is None: return {}
         return db.user_behavior_profiles.find_one({"user_id": user_id}) or {}
 
-    def calculate_behavior_bonus(self, row: dict, behavior_profile: dict):
-        bonus = 0.0
-        
-        # Sector bonus
+    def calculate_feedback_boost(self, row: dict, behavior_profile: dict):
+        boost = 0.0
         sector = row.get("sector")
-        if sector and "preferred_sectors" in behavior_profile:
-            pref = behavior_profile["preferred_sectors"].get(sector, 0)
-            # Heuristic: 1/5th of the aggregated weight as bonus points
-            bonus += pref * 0.5 
+        
+        # Feedback Boost logic: +15 (applied), +10 (saved), +5 (viewed), -10 (rejected)
+        # We aggregate these in the interaction_router under 'feedback_boosts'
+        if sector and "feedback_boosts" in behavior_profile:
+            boost = float(behavior_profile["feedback_boosts"].get(sector, 0))
+        
+        # Cap feedback influence at ±20 to prevent bias explosion
+        return max(-20.0, min(20.0, boost))
 
-        # Skill bonus
-        req_skills = row.get("required_skills", [])
-        if req_skills and "preferred_skills" in behavior_profile:
-            for skill in req_skills:
-                skill_norm = self.normalize_skill(skill)
-                bonus += behavior_profile["preferred_skills"].get(skill_norm, 0) * 0.2
+    def calculate_match_gap(self, user_skills: list, row: dict, base_score: float, semantic_score: float):
+        required_skills = row.get('required_skills', [])
+        _, _, missing = self.calculate_skill_match(user_skills, required_skills)
         
-        return bonus
-
-    def calculate_gap_analysis(self, missing_skills: list):
-        if not missing_skills:
-            return {"high_impact_skills": [], "medium_impact_skills": [], "low_impact_skills": []}
+        if not missing:
+            return {
+                "missing_skills": [],
+                "skill_impact_score": 0.0,
+                "semantic_gap_score": 0.0,
+                "estimated_score_if_completed": round(base_score, 2),
+                "recommended_focus_order": []
+            }
             
-        # Impact analysis (Mocked logic based on skill frequency in currently loaded internships)
-        all_req_skills = []
-        for skills in self.internships_df['required_skills']:
-            if isinstance(skills, list):
-                all_req_skills.extend([self.normalize_skill(s) for s in skills])
+        # Skill impact analysis
+        # How much would the score increase if each missing skill was added?
+        # Current skill_match = matched / total
+        total_req = len(required_skills)
+        impact_per_skill = (0.5 * (1.0 / total_req) * 100) if total_req > 0 else 0
         
-        from collections import Counter
-        skill_counts = Counter(all_req_skills)
-        total_internships = len(self.internships_df)
+        # Rank skills by impact (mocking specific skill rarity impact if needed, 
+        # but here we follow the "impact on score" rule from PRD)
+        focus_order = sorted(missing, key=lambda x: impact_per_skill, reverse=True)
         
-        gap_results = []
-        for skill in missing_skills:
-            skill_norm = self.normalize_skill(skill)
-            count = skill_counts.get(skill_norm, 0)
-            unlocked = count # How many more they'd be relevant for
-            # Simple gain estimate: frequency / total * 10
-            gain = (count / total_internships * 10) if total_internships > 0 else 0
-            
-            gap_results.append({
-                "skill": skill,
-                "estimated_score_gain": round(gain, 2),
-                "internships_unlocked": unlocked
-            })
-            
-        gap_results.sort(key=lambda x: x['estimated_score_gain'], reverse=True)
+        # Estimated score if ALL missing skills were completed
+        # If skills completed, skill_match becomes 100%
+        # New base_score = (0.5 * 1.0) + (0.3 * semantic) + (0.1 * sector) + (0.1 * location)
+        # For simplicity, we can estimate it as base_score + (missing_count * impact_per_skill)
+        estimated_final = min(100, base_score + (len(missing) * impact_per_skill))
         
         return {
-            "high_impact_skills": gap_results[:2],
-            "medium_impact_skills": gap_results[2:4],
-            "low_impact_skills": gap_results[4:]
+            "missing_skills": missing,
+            "skill_impact_score": round(len(missing) * impact_per_skill, 2),
+            "semantic_gap_score": round((1.0 - semantic_score) * 10, 2), # Heuristic
+            "estimated_score_if_completed": round(estimated_final, 2),
+            "recommended_focus_order": focus_order
         }
 
-    def recommend(self, user_profile: dict, top_n=5):
-        if self.internships_df is None or self.internships_df.empty:
+    def recommend(self, user_profile: dict, filters: dict = None):
+        if self.internships_df is None or self.internships_df.empty or self.internship_vectors is None:
+            print("⚠️ Recommender not ready or no internships available.")
             return []
+
+        # Extract filters
+        filters = filters or {}
+        limit = filters.get('limit', 30)
+        min_score_filter = filters.get('min_score', 0)
+        location_filter = str(filters.get('location', 'all') or 'all').lower()
 
         user_skills = user_profile.get('skills', [])
         target_role = str(user_profile.get('target_role', '')).lower().strip()
         preferred_sector = str(user_profile.get('preferred_sector', '')).lower().strip()
         preferred_location = str(user_profile.get('preferred_location', '')).lower().strip()
 
+        print(f"📊 Recommendation Filter: {location_filter}, min_score: {min_score_filter}, limit: {limit}")
+        print(f"📊 User Profile: roles={target_role}, skills={len(user_skills)}")
+
         # Step 1: Precompute User semantic vector
         user_text = target_role + " " + " ".join(user_skills)
         user_vector = self.tfidf_vectorizer.transform([user_text])
         
-        # Step 2: Calculate Semantic Similarity for all internships
+        # Step 2: Calculate Semantic Similarity
         semantic_similarities = cosine_similarity(user_vector, self.internship_vectors).flatten()
 
-        # Step 3: Filter by sector (optional - currently keeping original logic)
-        filtered_df = self.internships_df.copy()
-        # Note: If we filter, we need to track indices for similarities. 
-        # For simplicity in this iteration, we iterate through all and apply sector matching in score.
-
-        # Step 4: Fetch Behavior Profile
+        # Step 3: Fetch Behavior Profile
         user_id = str(user_profile.get('_id', ''))
         behavior_profile = self.get_user_behavior_profile(user_id) if user_id else {}
 
         results = []
+        print(f"📊 Scanning {len(self.internships_df)} internships...")
         for i, row in self.internships_df.iterrows():
+            # Location Filtering (Hard Filter)
+            internship_loc = str(row.get('location', '')).lower()
+            if location_filter != 'all':
+                if location_filter == 'remote' and 'remote' not in internship_loc:
+                    continue
+                if location_filter == 'onsite' and 'remote' in internship_loc:
+                    continue
+                # Add more specific logic if needed for hybrid
+
             skill_match_pct, matched, missing = self.calculate_skill_match(user_skills, row.get('required_skills', []))
             
-            # Minimum threshold: If skill overlap < 10% → discard
-            if skill_match_pct < 0.10:
+            # Minimum threshold
+            if skill_match_pct < 0.05:
                 continue
                 
             semantic_score = float(semantic_similarities[i])
             sector_score = calculate_sector_match(preferred_sector, row.get('sector'))
             location_score = calculate_location_match(preferred_location, row.get('location'))
             
-            # Hybrid Base Score:
+            # PRD Base Score (Updated Formula):
+            # 0.5 * skill_match + 0.3 * semantic_similarity + 0.1 * sector_alignment + 0.1 * location_match
             base_score = (
-                0.35 * skill_match_pct +
-                0.35 * semantic_score +
-                0.20 * sector_score +
-                0.10 * location_score
+                0.5 * skill_match_pct +
+                0.3 * semantic_score +
+                0.1 * sector_score +
+                0.1 * location_score
             ) * 100
             
-            # Behavior Adjustment Layer
-            behavior_bonus = self.calculate_behavior_bonus(row, behavior_profile)
-            final_score = min(100, base_score + behavior_bonus)
-
-            # Start with the full document to preserve all metadata
-            internship_data = row.to_dict()
-            if '_id' in internship_data:
-                internship_data['_id'] = str(internship_data['_id'])
+            # Feedback Boost Layer
+            feedback_boost = self.calculate_feedback_boost(row, behavior_profile)
             
-            # Update with computed fields
-            internship_data.update({
-                "internship_id": str(internship_data.get('_id', '')),
+            # Final Score
+            final_score = base_score + feedback_boost
+
+            # Structure response as per PART 4
+            internship_data = {
+                "internship_id": str(row.get('_id', '')),
+                "title": row.get('title') or "Untitled Internship",
+                "company": row.get('company') or row.get('organization') or "N/A",
+
+                "apply_url": row.get('apply_url') or "#",
+                "department_page": row.get('department_page') or "#",
+                "location": row.get('location') or "Remote",
                 "score": round(float(final_score), 2),
-                "behavior_bonus": round(behavior_bonus, 2),
+                "score_breakdown": {
+                    "skill_match": round(skill_match_pct * 100, 2),
+                    "semantic_similarity": round(semantic_score * 100, 2),
+                    "sector_alignment": round(sector_score * 100, 2),
+                    "location_match": round(location_score * 100, 2),
+                    "base_score": round(base_score, 2),
+                    "feedback_boost": round(feedback_boost, 2)
+                },
                 "match_details": {
                     "matched_skills": matched,
                     "missing_skills": missing,
                     "skill_match_percentage": round(skill_match_pct * 100, 2)
                 },
-                "score_breakdown": {
-                    "skill_match": round(skill_match_pct * 100, 2),
-                    "semantic_similarity": round(semantic_score * 100, 2),
-                    "sector_alignment": round(sector_score * 100, 2),
-                    "location_match": round(location_score * 100, 2)
-                },
-                "gap_analysis": self.calculate_gap_analysis(missing)
-            })
+                "gap_analysis": self.calculate_match_gap(user_skills, row, base_score, semantic_score)
+            }
             
-            # Ensure specific fields requested by prompt are present or null
-            for field in ["organization", "apply_url", "department_page", "location"]:
-                if field not in internship_data:
-                    internship_data[field] = None
-            
-            results.append(internship_data)
+            # Filter by min_score if provided
+            if final_score >= min_score_filter:
+                results.append(internship_data)
 
+
+        print(f"✅ Final recommendations found: {len(results)}")
+        # Round all scores and results
         results.sort(key=lambda x: x['score'], reverse=True)
-        return results[:top_n]
+        return results[:limit]
 
 recommender = InternshipRecommender()

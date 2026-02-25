@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, HttpUrl
 from typing import List, Optional
 from datetime import datetime
 
@@ -15,12 +15,19 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str
 
-class ProfileUpdate(BaseModel):
-    education: str
-    skills: List[str]
-    preferred_sector: str
-    preferred_location: str
-    target_role: str
+class ProfileUpdateRequest(BaseModel):
+    full_name: Optional[str] = None
+    education: Optional[str] = None
+    university: Optional[str] = None
+    graduation_year: Optional[int] = None
+    skills: Optional[List[str]] = None
+    preferred_sector: Optional[str] = None
+    preferred_location: Optional[str] = None
+    target_roles: Optional[List[str]] = None
+    bio: Optional[str] = None
+    linkedin_url: Optional[HttpUrl] = None
+    github_url: Optional[HttpUrl] = None
+    portfolio_url: Optional[HttpUrl] = None
 
 class AdminLogin(BaseModel):
     email: EmailStr
@@ -44,8 +51,8 @@ class InternshipCreate(BaseModel):
 class ScoreBreakdown(BaseModel):
     skill_match: float
     semantic_similarity: float
-    sector_alignment: float
-    location_match: float
+    base_score: float
+    behavior_bonus: float
 
 class MatchDetails(BaseModel):
     matched_skills: List[str]
@@ -57,10 +64,16 @@ class GapImpact(BaseModel):
     estimated_score_gain: float
     internships_unlocked: int
 
+class UserFeedbackCreate(BaseModel):
+    internship_id: str
+    action: str  # viewed | applied | saved | rejected
+
 class GapAnalysis(BaseModel):
-    high_impact_skills: List[GapImpact] = []
-    medium_impact_skills: List[GapImpact] = []
-    low_impact_skills: List[GapImpact] = []
+    missing_skills: List[str] = []
+    skill_impact_score: float = 0.0
+    semantic_gap_score: float = 0.0
+    estimated_score_if_completed: float = 0.0
+    recommended_focus_order: List[str] = []
 
 class RecommendationResponse(BaseModel):
     internship_id: str
@@ -70,14 +83,10 @@ class RecommendationResponse(BaseModel):
     department_page: Optional[str] = None
     location: Optional[str] = None
     score: float
-    match_details: MatchDetails
-    score_breakdown: ScoreBreakdown
-    behavior_bonus: float = 0.0
-    gap_analysis: GapAnalysis = Field(default_factory=GapAnalysis)
+    score_breakdown: dict
+    match_details: dict
+    gap_analysis: GapAnalysis
     learning_roadmap: Optional[str] = None
 
     class Config:
         extra = "allow"
-class UserInteractionCreate(BaseModel):
-    internship_id: str
-    action: str  # viewed | saved | applied | rejected

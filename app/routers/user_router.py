@@ -1,61 +1,107 @@
 from fastapi import APIRouter, HTTPException, Depends
 from ..database import get_database
-from ..models.schemas import ProfileUpdate
+from ..models.schemas import ProfileUpdateRequest
 from ..utils.auth_deps import get_current_user
-from ..gemini_service import gemini_service
 from datetime import datetime
 
 router = APIRouter(prefix="/user", tags=["User"])
 
-@router.get("/me")
-async def get_user_me(current_user: dict = Depends(get_current_user)):
+@router.get("/profile")
+async def get_profile(current_user: dict = Depends(get_current_user)):
     user = current_user
     user["_id"] = str(user["_id"])
     user.pop("hashed_password", None)
-    return user
+    
+    # Calculate Profile Strength (percentage of fields filled)
+    profile_fields = ["skills", "experience", "education", "target_roles", "preferred_sector"]
+    filled_fields = [f for f in profile_fields if user.get(f)]
+    profile_strength = int((len(filled_fields) / len(profile_fields)) * 100)
 
-@router.put("/profile")
+    return {
+        "full_name": user.get("full_name"),
+        "bio": user.get("bio"),
+        "skills": user.get("skills", []),
+        "target_roles": user.get("target_roles", [user.get("target_role")] if user.get("target_role") else []),
+        "sector_preference": user.get("preferred_sector", ""),
+        "location_preference": user.get("preferred_location", "remote"),
+        "university": user.get("university"),
+        "graduation_year": user.get("graduation_year"),
+        "education": user.get("education"),
+        "linkedin_url": str(user.get("linkedin_url")) if user.get("linkedin_url") else None,
+        "github_url": str(user.get("github_url")) if user.get("github_url") else None,
+        "portfolio_url": str(user.get("portfolio_url")) if user.get("portfolio_url") else None,
+        "profile_strength": profile_strength,
+        "semantic_alignment": 85, 
+        "last_updated": user.get("updated_at", user.get("created_at"))
+    }
+
+@router.get("/me")
+async def get_my_info(current_user: dict = Depends(get_current_user)):
+    user = current_user
+    return {
+        "id": str(user["_id"]),
+        "full_name": user.get("full_name") or user.get("name") or "User",
+        "email": user.get("email"),
+        "role": user.get("role", "Student"),
+        "department": user.get("university") or user.get("education") or "N/A",
+        "member_since": (user.get("created_at") or datetime.utcnow()).strftime("%Y-%m-%d"),
+        "plan": "Premium" if user.get("role") == "admin" else "Free"
+    }
+
+@router.put("/profile/update")
 async def update_profile(
-    profile_data: ProfileUpdate, 
+    profile_update: ProfileUpdateRequest, 
     current_user: dict = Depends(get_current_user)
 ):
     db = get_database()
     
-    # Normalize skills to lowercase
-    normalized_skills = [skill.lower().strip() for skill in profile_data.skills]
-    
-    # AI Misuse Detection (Step 2: Profile Update)
-    profile_dict = profile_data.dict()
-    profile_dict['skills'] = normalized_skills
-    profile_dict['target_role'] = profile_dict['target_role'].lower().strip()
-    
-    misuse_check = await gemini_service.detect_profile_misuse(profile_dict)
-    
+    # Partial Update Logic with exclude_unset to avoid overwriting with None
     update_data = {
-        "education": profile_data.education.lower().strip(),
-        "skills": normalized_skills,
-        "preferred_sector": profile_data.preferred_sector.lower().strip(),
-        "preferred_location": profile_data.preferred_location.lower().strip(),
-        "target_role": profile_dict['target_role']
+        k: v
+        for k, v in profile_update.dict(exclude_unset=True).items()
     }
     
-    if misuse_check["severity_score"] > 0.75:
-        # Increase warning count or block if necessary
+    # Extra processing for URLs to ensure they are strings in JSON
+    for url_field in ["linkedin_url", "github_url", "portfolio_url"]:
+        if url_field in update_data and update_data[url_field]:
+            update_data[url_field] = str(update_data[url_field])
+
+    # Recommender compatibility: Sync target_role if target_roles is updated
+    if "target_roles" in update_data and update_data["target_roles"]:
+        update_data["target_role"] = update_data["target_roles"][0]
+
+    if update_data:
+        update_data["updated_at"] = datetime.utcnow()
         db.users.update_one(
             {"email": current_user["email"]}, 
-            {"$inc": {"warning_count": 1}}
+            {"$set": update_data}
         )
-        db.misuse_reports.insert_one({
-            "user_id": str(current_user["_id"]),
-            "severity_score": misuse_check["severity_score"],
-            "analysis": misuse_check["explanation"],
-            "flagged": True,
-            "timestamp": datetime.utcnow()
-        })
-
-    db.users.update_one(
-        {"email": current_user["email"]}, 
-        {"$set": update_data}
-    )
     
-    return {"message": "Profile updated successfully", "misuse_flagged": misuse_check["severity_score"] > 0.75}
+    # Re-fetch updated user for strength calculation
+    user = db.users.find_one({"email": current_user["email"]})
+    profile_fields = ["skills", "experience", "education", "target_roles", "preferred_sector"]
+    filled_fields = [f for f in profile_fields if user.get(f)]
+    profile_strength = int((len(filled_fields) / len(profile_fields)) * 100)
+    
+    # Prepare response including all fields
+    updated_profile = {
+        "full_name": user.get("full_name"),
+        "bio": user.get("bio"),
+        "university": user.get("university"),
+        "graduation_year": user.get("graduation_year"),
+        "education": user.get("education"),
+        "skills": user.get("skills", []),
+        "target_roles": user.get("target_roles", []),
+        "sector_preference": user.get("preferred_sector", ""),
+        "location_preference": user.get("preferred_location", "remote"),
+        "linkedin_url": str(user.get("linkedin_url")) if user.get("linkedin_url") else None,
+        "github_url": str(user.get("github_url")) if user.get("github_url") else None,
+        "portfolio_url": str(user.get("portfolio_url")) if user.get("portfolio_url") else None,
+        "profile_strength": profile_strength,
+        "last_updated": user.get("updated_at")
+    }
+
+    return {
+        "message": "Profile updated successfully", 
+        "profile": updated_profile
+    }

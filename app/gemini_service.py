@@ -49,6 +49,55 @@ class GeminiService:
             # Mandatory Fallback: Never expose AI errors
             return self._generate_rule_based_roadmap(missing_skills)
 
+    async def get_structured_roadmap(self, internship_title: str, missing_skills: list):
+        """Generates a structured multi-phase roadmap using Gemini."""
+        if not missing_skills:
+            return {
+                "phases": [{"title": "Excellence", "duration": "Week 1", "items": ["Deepen domain expertise"] }],
+                "strategy_highlight": "You already match all core requirements. Focus on specialized projects."
+            }
+
+        prompt = f"""
+        Internship: {internship_title}
+        Missing Skills: {', '.join(missing_skills)}
+        
+        Generate a professional 3-phase internship preparation roadmap.
+        Each phase must have a title, duration (e.g. Week 1-2), and a list of actionable items.
+        Also provide a 'strategy_highlight' explaining the core value of this learning path.
+
+        Return ONLY raw JSON with this exact structure:
+        {{
+          "phases": [
+            {{ "title": "...", "duration": "...", "items": ["...", "..."] }},
+            {{ "title": "...", "duration": "...", "items": ["...", "..."] }},
+            {{ "title": "...", "duration": "...", "items": ["..."] }}
+          ],
+          "strategy_highlight": "..."
+        }}
+        """
+        
+        try:
+            response = self.model.generate_content(prompt)
+            text = response.text
+            start = text.find('{')
+            end = text.rfind('}') + 1
+            if start != -1 and end != -1:
+                return json.loads(text[start:end])
+            
+            # Simplified fallback
+            return {
+                "phases": [
+                    { "title": "Foundation", "duration": "Week 1", "items": [f"Learn basics of {missing_skills[0]}"] },
+                    { "title": "Application", "duration": "Week 2", "items": [f"Build project with {', '.join(missing_skills[:2])}"] }
+                ],
+                "strategy_highlight": "Focus on skill acquisition and practical implementation."
+            }
+        except Exception:
+            return {
+                "phases": [{"title": "Learning Path", "duration": "Week 1-2", "items": ["Study documentation", "Build projects"] }],
+                "strategy_highlight": "Prioritize missing core competencies."
+            }
+
     async def detect_profile_misuse(self, user_data: dict):
         """Safety check for profiles."""
         prompt = f"""
