@@ -2,12 +2,13 @@ fastapi
 uvicorn[standard]
 pymongo
 python-dotenv
+slowapi
+google-generativeai
 scikit-learn
 rapidfuzz
 passlib[argon2]
 argon2-cffi
 PyJWT
-google-generativeai
 pydantic[email]
 numpy
 pandas
