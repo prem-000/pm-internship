@@ -8,7 +8,8 @@
 
 import store from './store.js';
 
-const BASE_URL = 'https://pm-internship-u7yf.onrender.com'; // Adjust as needed for production
+// Base URL — switch to your Render URL for production
+const BASE_URL = 'https://pm-internship-u7yf.onrender.com/api'; // production (Render)
 
 async function apiRequest(method, endpoint, body = null) {
     const url = `${BASE_URL}${endpoint}`;
