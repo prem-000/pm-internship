@@ -8,7 +8,7 @@
 
 import store from './store.js';
 
-const BASE_URL = 'http://localhost:8000/api'; // Adjust as needed for production
+const BASE_URL = 'https://pm-internship-u7yf.onrender.com'; // Adjust as needed for production
 
 async function apiRequest(method, endpoint, body = null) {
     const url = `${BASE_URL}${endpoint}`;
