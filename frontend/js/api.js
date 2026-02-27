@@ -8,8 +8,17 @@
 
 import store from './store.js';
 
-// Base URL — switch to your Render URL for production
-const BASE_URL = 'https://pm-internship-u7yf.onrender.com/api'; // production (Render)
+// Base URL configuration
+const getBaseUrl = () => {
+    // If local development (localhost or 127.0.0.1)
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8000/api';
+    }
+    // Fallback to production
+    return 'https://pm-internship-u7yf.onrender.com/api';
+};
+
+const BASE_URL = getBaseUrl();
 
 async function apiRequest(method, endpoint, body = null) {
     const url = `${BASE_URL}${endpoint}`;

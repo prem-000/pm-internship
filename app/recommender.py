@@ -170,6 +170,9 @@ class InternshipRecommender:
                 continue
                 
             semantic_score = float(semantic_similarities[i])
+            if np.isnan(semantic_score):
+                semantic_score = 0.0
+                
             sector_score = calculate_sector_match(preferred_sector, row.get('sector'))
             location_score = calculate_location_match(preferred_location, row.get('location'))
             
@@ -181,6 +184,10 @@ class InternshipRecommender:
                 0.1 * sector_score +
                 0.1 * location_score
             ) * 100
+            
+            # Safety check for NaN base_score
+            if np.isnan(base_score):
+                base_score = 0.0
             
             # Feedback Boost Layer
             feedback_boost = self.calculate_feedback_boost(row, behavior_profile)

@@ -1,5 +1,6 @@
 import store from '../js/store.js';
 import { dashboardController } from '../js/dashboard.controller.js';
+import { renderSidebar } from '../components/sidebar.js';
 
 export const renderDashboard = async (container) => {
     // Show initial skeleton or loader
@@ -38,59 +39,10 @@ function renderMainLayout(container) {
     container.innerHTML = `
         <div class="flex min-h-screen relative overflow-hidden bg-background-light dark:bg-background-dark">
             <!-- Left Sidebar -->
-            <aside class="hidden lg:flex flex-col w-[240px] bg-primary text-white h-screen sticky top-0 shrink-0">
-                <div class="p-6 flex items-center gap-3">
-                    <div class="size-10 bg-white/10 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-3xl">school</span>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-tight">AIRE</h1>
-                        <p class="text-xs text-white/50 leading-tight">Adaptive Engine</p>
-                    </div>
-                </div>
-                <nav class="mt-6 flex-1 px-4 space-y-1">
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white font-medium transition-colors" href="#/dashboard">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span class="text-sm">Dashboard</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/profile">
-                        <span class="material-symbols-outlined">person</span>
-                        <span class="text-sm">Profile</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/recommendations">
-                        <span class="material-symbols-outlined">auto_awesome</span>
-                        <span class="text-sm">Recommendations</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/analytics">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span class="text-sm">Analytics</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/roadmap">
-                        <span class="material-symbols-outlined">route</span>
-                        <span class="text-sm">Roadmap</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/settings">
-                        <span class="material-symbols-outlined">settings</span>
-                        <span class="text-sm">Settings</span>
-                    </a>
-                </nav>
-                <div class="p-4 mt-auto">
-                    <div class="bg-white/5 rounded-xl p-4 mb-4">
-                        <p class="text-[10px] uppercase tracking-wider text-white/40 font-bold mb-2">System Status</p>
-                        <div class="flex items-center gap-2">
-                            <div class="size-2 rounded-full bg-emerald-400"></div>
-                            <span class="text-xs text-white/80">Engine Synchronized</span>
-                        </div>
-                    </div>
-                    <button id="logoutBtn" class="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-white/60 hover:text-white hover:bg-red-500/10 transition-colors">
-                        <span class="material-symbols-outlined">logout</span>
-                        <span class="text-sm">Logout</span>
-                    </button>
-                </div>
-            </aside>
+            ${renderSidebar('#/dashboard')}
 
             <!-- Main Content Area -->
-            <main class="flex-1 flex flex-col lg:flex-row gap-6 p-4 md:p-8 overflow-x-hidden">
+            <main class="flex-1 flex flex-col lg:flex-row gap-6 p-4 md:p-8 overflow-x-hidden ml-72">
                 <!-- Center Column -->
                 <div class="flex-1 max-w-4xl">
                     <!-- Header Section -->
@@ -271,7 +223,7 @@ function renderRecommendations(recs) {
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <button data-action="applied" data-id="${rec.internship_id}" data-url="${rec.apply_url}" class="action-btn flex-1 bg-primary text-white text-xs font-bold py-2.5 rounded-lg hover:bg-primary/90 transition-colors">Apply Now</button>
-                            <button class="flex-1 bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-lg hover:bg-slate-200 transition-colors">View Roadmap</button>
+                            <button data-id="${rec.internship_id}" class="roadmap-btn flex-1 bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-lg hover:bg-slate-200 transition-colors">View Roadmap</button>
                             <button data-action="saved" data-id="${rec.internship_id}" class="action-btn px-3 bg-white border border-slate-200 text-slate-400 rounded-lg hover:text-red-500 hover:border-red-200 transition-colors">
                                 <span class="material-symbols-outlined text-base">favorite</span>
                             </button>
@@ -288,7 +240,7 @@ function renderOpportunityList(recs) {
     return recs.map(rec => {
         const score = Math.min(100, Math.max(0, Math.round(rec.score)));
         return `
-            <div class="bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors group">
+            <div data-id="${rec.internship_id}" class="opportunity-row bg-white border border-slate-200 rounded-lg p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors group">
                 <div class="flex items-center gap-4">
                     <div class="size-10 bg-slate-100 rounded-lg flex items-center justify-center font-bold text-slate-600">${score}%</div>
                     <div>
@@ -322,9 +274,28 @@ function renderSkillGaps(skills) {
 
 function setupInteractions(container) {
     // Logout
-    container.querySelector('#logoutBtn').addEventListener('click', () => {
-        store.clearToken();
-        window.location.hash = '#/login';
+    const logoutBtn = container.querySelector('#logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            store.clearToken();
+            window.location.hash = '#/login';
+        });
+    }
+
+    // Roadmap buttons
+    container.querySelectorAll('.roadmap-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            window.location.hash = `#/roadmap/${id}`;
+        });
+    });
+
+    // Opportunity rows
+    container.querySelectorAll('.opportunity-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const id = row.getAttribute('data-id');
+            window.location.hash = `#/roadmap/${id}`;
+        });
     });
 
     // Action buttons

@@ -55,6 +55,16 @@ function router() {
 window.addEventListener('hashchange', router);
 window.addEventListener('load', router);
 
+// Global Logout Handler (Event Delegation)
+document.addEventListener('click', (e) => {
+    const logoutBtn = e.target.closest('#logoutBtn');
+    if (logoutBtn) {
+        console.log('Central Logout Triggered');
+        store.clearToken();
+        window.location.hash = '#/login';
+    }
+});
+
 export const navigate = (hash) => {
     window.location.hash = hash;
 };

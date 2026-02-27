@@ -89,12 +89,6 @@ export const renderLogin = (container) => {
                     <a href="#/register" class="font-bold text-gray-900 hover:text-indigo-600 transition-colors">Create an account</a>
                 </p>
             </div>
-        </div>
-        
-        <div class="mt-8 flex items-center justify-center space-x-2">
-            <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-            <span class="text-xs text-gray-500 font-medium tracking-wide italic">System Operational - AI Recommendations Powered by Adaptive Engine</span>
-        </div>
     </div>
     `;
 

@@ -1,5 +1,6 @@
 import { roadmapController } from '../js/roadmap.controller.js';
 import store from '../js/store.js';
+import { renderSidebar } from '../components/sidebar.js';
 
 export const renderRoadmap = async (container, params) => {
     const id = params.id;
@@ -34,27 +35,10 @@ async function renderSelectionScreen(container) {
 
     container.innerHTML = `
         <div class="flex min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
-            <!-- Reuse Sidebar (simplified for brevity or import a component) -->
-            <aside class="w-64 bg-primary text-white flex flex-col shrink-0">
-                <!-- ... header ... -->
-                <div class="p-6 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white">school</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <h1 class="text-lg font-bold tracking-tight">AIRE</h1>
-                        <p class="text-[10px] text-indigo-300">Adaptive Engine</p>
-                    </div>
-                </div>
-                <nav class="flex-1 px-4 space-y-2 mt-4">
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors" href="#/dashboard"><span class="material-symbols-outlined">dashboard</span> <span class="text-sm font-medium">Dashboard</span></a>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors" href="#/profile"><span class="material-symbols-outlined">person</span> <span class="text-sm font-medium">Profile</span></a>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/20" href="#/roadmap"><span class="material-symbols-outlined">map</span> <span class="text-sm font-medium">Roadmap</span></a>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors" href="#/recommendations"><span class="material-symbols-outlined">auto_awesome</span> <span class="text-sm font-medium">Recommendations</span></a>
-                </nav>
-            </aside>
+            <!-- Sidebar -->
+            ${renderSidebar('#/roadmap')}
 
-            <main class="flex-1 p-12 overflow-y-auto">
+            <main class="flex-1 ml-72 p-12 overflow-y-auto">
                 <header class="mb-12">
                     <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-2">My Roadmaps</h2>
                     <p class="text-slate-500">Select an internship to view your personalized skill gap analysis and AI-generated roadmap.</p>
@@ -110,57 +94,10 @@ function renderMainLayout(container) {
     container.innerHTML = `
 <div class="flex min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
 <!-- Sidebar -->
-<aside class="w-64 bg-primary text-white flex flex-col shrink-0">
-<div class="p-6 flex items-center gap-3">
-    <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-        <span class="material-symbols-outlined text-white">school</span>
-    </div>
-    <div class="flex flex-col">
-        <h1 class="text-lg font-bold tracking-tight">AIRE</h1>
-        <p class="text-[10px] text-indigo-300">Adaptive Engine</p>
-    </div>
-</div>
-<nav class="flex-1 px-4 space-y-2 mt-4">
-    <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors" href="#/dashboard">
-        <span class="material-symbols-outlined text-[22px]">dashboard</span>
-        <span class="text-sm font-medium">Dashboard</span>
-    </a>
-    <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors" href="#/profile">
-        <span class="material-symbols-outlined text-[22px]">person</span>
-        <span class="text-sm font-medium">Profile</span>
-    </a>
-    <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/20" href="#/roadmap">
-        <span class="material-symbols-outlined text-[22px]">map</span>
-        <span class="text-sm font-medium">Roadmap</span>
-    </a>
-    <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors" href="#/recommendations">
-        <span class="material-symbols-outlined text-[22px]">auto_awesome</span>
-        <span class="text-sm font-medium">Recommendations</span>
-    </a>
-    <a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors" href="#/analytics">
-        <span class="material-symbols-outlined text-[22px]">analytics</span>
-        <span class="text-sm font-medium">Analytics</span>
-    </a>
-</nav>
-<div class="mt-auto px-4 mb-4">
-    <div class="bg-white/5 rounded-xl p-4">
-        <p class="text-[10px] font-bold text-indigo-300 uppercase tracking-wider mb-2">System Status</p>
-        <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-            <span class="text-xs text-white/80">Engine Synchronized</span>
-        </div>
-    </div>
-</div>
-<div class="p-4 border-white/10">
-    <button id="logoutBtn" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors">
-        <span class="material-symbols-outlined text-[22px]">logout</span>
-        Logout
-    </button>
-</div>
-</aside>
+${renderSidebar('#/roadmap')}
 
 <!-- Main Content -->
-<main class="flex-1 flex flex-col overflow-hidden">
+<main class="flex-1 flex flex-col overflow-hidden ml-72">
 <!-- Header -->
 <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex items-center justify-between px-8">
 <div class="flex items-center gap-2">

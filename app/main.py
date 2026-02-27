@@ -1,14 +1,21 @@
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from .database import connect_to_mongo, close_mongo_connection, get_database
 from .recommender import recommender
-from .routers import auth_router, user_router, recommendation_router, admin_router, interaction_router as feedback_router, internship_router
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from .routers import (
+    auth_router, 
+    user_router, 
+    recommendation_router, 
+    admin_router, 
+    interaction_router as feedback_router, 
+    internship_router,
+    analytics_router
+)
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-
 from .utils.limiter import limiter
 
 @asynccontextmanager
@@ -51,6 +58,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    print(f"Global Exception: {exc}") # Added for debugging
     return JSONResponse(
         status_code=500,
         content={"detail": "An internal system error occurred. Our engineers have been notified."}
@@ -63,6 +71,11 @@ app.include_router(recommendation_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
 app.include_router(feedback_router.router, prefix="/api")
 app.include_router(internship_router.router, prefix="/api")
+app.include_router(analytics_router.router, prefix="/api")
+
+@app.get("/api/health", tags=["Health"])
+async def api_health():
+    return {"status": "ok", "message": "API is synchronized"}
 
 @app.get("/", tags=["Health"])
 async def health_check():
@@ -79,7 +92,6 @@ async def debug_internships():
         return {"error": "Database not connected"}
         
     total = db.internships.count_documents({})
-    # Try to get roles from 'role' field, or fallback to 'title' if 'role' doesn't exist
     roles = db.internships.distinct("role")
     titles = db.internships.distinct("title")
     
@@ -90,6 +102,10 @@ async def debug_internships():
         "example_titles": titles[:10] if titles else []
     }
 app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+@app.get("/health")
 async def health():
     return {"status": "ok"}
 

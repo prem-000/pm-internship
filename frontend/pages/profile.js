@@ -1,6 +1,7 @@
 import store from '../js/store.js';
 import { profileController } from '../js/profile.controller.js';
 import { toast } from '../components/toast.js';
+import { renderSidebar } from '../components/sidebar.js';
 
 export const renderProfile = async (container) => {
     // Show loader
@@ -23,52 +24,10 @@ function renderMainLayout(container) {
     container.innerHTML = `
         <div class="flex min-h-screen bg-background-light dark:bg-background-dark">
             <!-- Left Sidebar -->
-            <aside class="hidden lg:flex flex-col w-[240px] bg-primary text-white h-screen sticky top-0 shrink-0">
-                <div class="p-6 flex items-center gap-3">
-                    <div class="size-10 bg-white/10 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-3xl">school</span>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-tight">AIRE</h1>
-                        <p class="text-xs text-white/50 leading-tight">Adaptive Engine</p>
-                    </div>
-                </div>
-                <nav class="mt-6 flex-1 px-4 space-y-1">
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/dashboard">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span class="text-sm">Dashboard</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-white font-medium transition-colors" href="#/profile">
-                        <span class="material-symbols-outlined">person</span>
-                        <span class="text-sm">Profile</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/recommendations">
-                        <span class="material-symbols-outlined">auto_awesome</span>
-                        <span class="text-sm">Recommendations</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/analytics">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span class="text-sm">Analytics</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/roadmap">
-                        <span class="material-symbols-outlined">route</span>
-                        <span class="text-sm">Roadmap</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors" href="#/settings">
-                        <span class="material-symbols-outlined">settings</span>
-                        <span class="text-sm">Settings</span>
-                    </a>
-                </nav>
-                <div class="p-4 mt-auto">
-                    <button id="logoutBtn" class="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-white/60 hover:text-white hover:bg-red-500/10 transition-colors">
-                        <span class="material-symbols-outlined">logout</span>
-                        <span class="text-sm">Logout</span>
-                    </button>
-                </div>
-            </aside>
+            ${renderSidebar('#/profile')}
 
             <!-- Main Content -->
-            <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto">
+            <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto ml-72">
                 <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 entrance-section">
                     <div>
                         <h2 class="text-3xl font-black text-slate-900 leading-tight">Welcome back, ${profile?.full_name || user?.name || 'User'}!</h2>
@@ -338,10 +297,13 @@ function renderMainLayout(container) {
     bindSkillRemovers();
 
     // Sidebar Logout
-    container.querySelector('#logoutBtn').onclick = () => {
-        store.clearToken();
-        window.location.hash = '#/login';
-    };
+    const logoutBtn = container.querySelector('#logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.onclick = () => {
+            store.clearToken();
+            window.location.hash = '#/login';
+        };
+    }
 
     // Entrance Animations
     container.querySelectorAll('.entrance-section').forEach((el, i) => {

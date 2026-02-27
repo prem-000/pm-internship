@@ -4,119 +4,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIRE - Adaptive Internship Recommendation Engine</title>
+    <title>AIRE</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
     <script id="tailwind-config">
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#1e1b4b",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#15141e",
+                        "govNavy": "#1e1b4b",
+                        "govSaffron": "#f97316",
+                        "govGray": "#f8fafc",
                     },
                     fontFamily: {
-                        "display": ["Inter"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
+                        "display": ["Inter", "sans-serif"]
+                    }
+                }
+            }
         }
     </script>
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            margin: 0;
-            min-height: 100vh;
+            background-color: #f8fafc;
+            overflow-x: hidden;
         }
 
-        .clean-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
+        .animated-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(30, 27, 75, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 27, 75, 0.05) 1px, transparent 1px);
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+        @keyframes gridMove {
+            0% {
+                transform: translateY(0);
             }
 
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
-        }
-
-        @keyframes scaleUp {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes shake {
-
-            0%,
             100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-5px);
-            }
-
-            75% {
-                transform: translateX(5px);
+                transform: translateY(40px);
             }
         }
 
-        .animate-fade-in {
-            animation: fadeIn 0.2s ease-out;
+        .radial-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, rgba(30, 27, 75, 0.03) 0%, transparent 70%);
+            z-index: -1;
         }
 
-        .animate-fade-out {
-            animation: fadeOut 0.2s ease-in;
+        .step-animation {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
         }
 
-        .animate-scale-up {
-            animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .animate-shake {
-            animation: shake 0.4s ease-in-out;
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.5s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.7s;
+        }
+
+        .line-connector {
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: 40px;
+            width: 2px;
+            background: #e2e8f0;
+            z-index: 0;
         }
     </style>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
-    <div id="app" class="min-h-screen">
-        <!-- Views will be injected here -->
-    </div>
+<body class="min-h-screen flex flex-col font-display selection:bg-govNavy selection:text-white">
+    <div class="animated-grid"></div>
+    <div class="radial-glow"></div>
 
+    <!-- Header -->
+    <header class="pt-16 pb-8 text-center animate-fade-in">
+        <div class="inline-block relative">
+            <h1 class="text-4xl md:text-6xl font-black text-govNavy tracking-tight px-4 italic"></h1>
+        </div>
+        <p class="mt-6 text-sm md:text-base text-slate-500 italic font-medium">Empowering Students Through Intelligent
+            Internship Matching</p>
+    </header>
 
-    <script type="module" src="js/router.js"></script>
+    <!-- Main Content -->
+    <main
+        class="flex-1 container mx-auto px-6 max-w-7xl flex flex-col lg:flex-row items-center justify-center gap-16 py-12">
+        <!-- Left: Hero Info -->
+        <div class="flex-1 space-y-8 max-w-xl">
+            <h2 class="text-4xl md:text-6xl font-black text-govNavy leading-[1.1] tracking-tight">
+                AI-Powered Adaptive Internship Allocation System
+            </h2>
+            <p class="text-lg text-slate-600 leading-relaxed font-medium">
+                The centralized national platform leveraging skill-based semantic analysis and machine learning to
+                bridge the gap between academic potential and industrial requirements. Our system ensures equitable,
+                merit-based opportunities for students across the nation.
+            </p>
+            <div class="pt-4">
+                <a href="login.html"
+                    class="inline-block bg-govNavy text-white px-10 py-5 rounded-lg text-sm font-black uppercase tracking-widest shadow-2xl hover:bg-blue-900 transition-all active:scale-95 shadow-indigo-500/20">
+                    Get Started
+                </a>
+            </div>
+        </div>
+
+        <!-- Right: Process Visualizer -->
+        <div
+            class="flex-1 w-full max-w-2xl bg-white rounded-[2rem] p-10 shadow-2xl shadow-indigo-500/10 border border-slate-100 flex flex-col gap-8 relative">
+            <div class="line-connector"></div>
+
+            <!-- Step 1 -->
+            <div class="flex items-start gap-6 relative z-10 step-animation delay-1">
+                <div
+                    class="size-10 rounded-full bg-govNavy flex items-center justify-center shrink-0 shadow-lg text-white font-black text-sm">
+                    1</div>
+                <div
+                    class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
+                    <h3 class="font-bold text-govNavy mb-1">Student Profile Submission</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Secure digital document and
+                        credentials vault.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flex items-start gap-6 relative z-10 step-animation delay-2">
+                <div
+                    class="size-10 rounded-full bg-govNavy flex items-center justify-center shrink-0 shadow-lg text-white font-black text-sm">
+                    2</div>
+                <div
+                    class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
+                    <h3 class="font-bold text-govNavy mb-1">AI Skill Analysis Engine</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Semantic parsing of academic and
+                        technical skills.</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flex items-start gap-6 relative z-10 step-animation delay-3">
+                <div
+                    class="size-10 rounded-full bg-govNavy flex items-center justify-center shrink-0 shadow-lg text-white font-black text-sm">
+                    3</div>
+                <div
+                    class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
+                    <h3 class="font-bold text-govNavy mb-1">Adaptive Ranking Model</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Merit-weighted matching with industry
+                        requirements.</p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="flex items-start gap-6 relative z-10 step-animation delay-4">
+                <div
+                    class="size-10 rounded-full bg-govNavy flex items-center justify-center shrink-0 shadow-lg text-white font-black text-sm">
+                    4</div>
+                <div
+                    class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
+                    <h3 class="font-bold text-govNavy mb-1">Verified Internship Allocation</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Direct placement with digital offer
+                        issuance.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-slate-100 mt-12">
+        <div class="text-center">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                © 2026 AIRE | Intelligent Internship Matching
+            </p>
+        </div>
+    </footer>
 </body>
 
 </html>
