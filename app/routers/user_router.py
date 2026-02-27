@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from ..database import get_database
 from ..models.schemas import ProfileUpdateRequest, LanguageUpdateRequest
 from ..utils.auth_deps import get_current_user
+from ..utils.profile_helper import calculate_profile_strength
 from datetime import datetime
 
 router = APIRouter(prefix="/user", tags=["User"])
@@ -12,10 +13,8 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
     user["_id"] = str(user["_id"])
     user.pop("hashed_password", None)
     
-    # Calculate Profile Strength (percentage of fields filled)
-    profile_fields = ["skills", "experience", "education", "target_roles", "preferred_sector"]
-    filled_fields = [f for f in profile_fields if user.get(f)]
-    profile_strength = int((len(filled_fields) / len(profile_fields)) * 100)
+    # Calculate Profile Strength
+    profile_strength = calculate_profile_strength(user)
 
     return {
         "full_name": user.get("full_name"),
@@ -84,9 +83,7 @@ async def update_profile(
     
     # Re-fetch updated user for strength calculation
     user = db.users.find_one({"email": current_user["email"]})
-    profile_fields = ["skills", "experience", "education", "target_roles", "preferred_sector"]
-    filled_fields = [f for f in profile_fields if user.get(f)]
-    profile_strength = int((len(filled_fields) / len(profile_fields)) * 100)
+    profile_strength = calculate_profile_strength(user)
     
     # Prepare response including all fields
     updated_profile = {

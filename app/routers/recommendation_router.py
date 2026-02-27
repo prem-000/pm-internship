@@ -4,6 +4,7 @@ from ..gemini_service import gemini_service
 from ..database import get_database
 from ..models.schemas import RecommendationResponse
 from ..utils.auth_deps import get_current_user
+from ..utils.profile_helper import calculate_profile_strength
 from typing import List
 from datetime import datetime
 
@@ -28,9 +29,7 @@ async def get_recommendations(
     recommendations = recommender.recommend(user, filters=filters)
     
     # Calculate Profile Strength (synchronized with user_router)
-    profile_fields = ["skills", "experience", "education", "target_roles", "preferred_sector"]
-    filled_fields = [f for f in profile_fields if user.get(f)]
-    profile_strength = int((len(filled_fields) / len(profile_fields)) * 100)
+    profile_strength = calculate_profile_strength(user)
 
     # Prepare response in PRD format
     return {
