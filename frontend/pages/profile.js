@@ -2,6 +2,7 @@ import store from '../js/store.js';
 import { profileController } from '../js/profile.controller.js';
 import { toast } from '../components/toast.js';
 import { renderSidebar } from '../components/sidebar.js';
+import { renderTopBar } from '../components/mobileNav.js';
 
 export const renderProfile = async (container) => {
     // Show loader
@@ -22,12 +23,15 @@ function renderMainLayout(container) {
     let currentSkills = [...(profile?.skills || [])];
 
     container.innerHTML = `
-        <div class="flex min-h-screen bg-background-light dark:bg-background-dark">
+        <div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark overflow-x-hidden">
+            <!-- Mobile Top Bar -->
+            ${renderTopBar('PROFILE')}
+
             <!-- Left Sidebar -->
             ${renderSidebar('#/profile')}
 
             <!-- Main Content -->
-            <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto ml-72">
+            <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto lg:ml-72 ml-0 pb-24 lg:pb-8 w-full">
                 <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 entrance-section">
                     <div>
                         <h2 class="text-3xl font-black text-slate-900 leading-tight">Welcome back, ${profile?.full_name || user?.name || 'User'}!</h2>

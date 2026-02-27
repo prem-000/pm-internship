@@ -1,6 +1,7 @@
 import { roadmapController } from '../js/roadmap.controller.js';
 import store from '../js/store.js';
 import { renderSidebar } from '../components/sidebar.js';
+import { renderTopBar } from '../components/mobileNav.js';
 
 export const renderRoadmap = async (container, params) => {
     const id = params.id;
@@ -34,11 +35,14 @@ async function renderSelectionScreen(container) {
     const recs = store.recommendations || [];
 
     container.innerHTML = `
-        <div class="flex min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+        <div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-x-hidden">
+            <!-- Mobile Top Bar -->
+            ${renderTopBar('ROADMAPS')}
+
             <!-- Sidebar -->
             ${renderSidebar('#/roadmap')}
 
-            <main class="flex-1 ml-72 p-12 overflow-y-auto">
+            <main class="flex-1 lg:ml-72 ml-0 p-6 md:p-12 overflow-y-auto pb-24 lg:pb-12">
                 <header class="mb-12">
                     <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-2">My Roadmaps</h2>
                     <p class="text-slate-500">Select an internship to view your personalized skill gap analysis and AI-generated roadmap.</p>
@@ -92,12 +96,15 @@ function renderMainLayout(container) {
     const { internship, gap_analysis, gemini_roadmap } = data;
 
     container.innerHTML = `
-<div class="flex min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-x-hidden">
+<!-- Mobile Top Bar -->
+${renderTopBar('ROADMAP')}
+
 <!-- Sidebar -->
 ${renderSidebar('#/roadmap')}
 
 <!-- Main Content -->
-<main class="flex-1 flex flex-col overflow-hidden ml-72">
+<main class="flex-1 flex flex-col overflow-hidden lg:ml-72 ml-0 pb-24 lg:pb-0">
 <!-- Header -->
 <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex items-center justify-between px-8">
 <div class="flex items-center gap-2">

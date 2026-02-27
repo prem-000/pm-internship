@@ -3,6 +3,7 @@ import { settingsController } from '../js/settings.controller.js';
 import { toast } from '../components/toast.js';
 import { showConfirmModal } from '../components/modal.js';
 import { renderSidebar } from '../components/sidebar.js';
+import { renderTopBar } from '../components/mobileNav.js';
 
 export const renderSettings = async (container) => {
     // Show skeleton loader initial
@@ -23,12 +24,15 @@ export const renderSettings = async (container) => {
 
 function renderMainLayout(container, user) {
     container.innerHTML = `
-<div class="flex min-h-screen relative overflow-hidden bg-background-light dark:bg-background-dark font-display">
+<div class="flex flex-col lg:flex-row min-h-screen relative overflow-hidden bg-background-light dark:bg-background-dark font-display">
+    <!-- Mobile Top Bar -->
+    ${renderTopBar('SETTINGS')}
+
     <!-- Sidebar Navigation -->
     ${renderSidebar('#/settings')}
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col min-w-0 overflow-hidden ml-72">
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-72 ml-0 pb-24 lg:pb-0">
         <!-- Header -->
         <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-10">
             <div class="flex items-center gap-4">

@@ -16,7 +16,7 @@ export const renderSidebar = (currentPath) => {
     ];
 
     return `
-        <aside class="w-72 bg-[#1e1b4b] text-white flex flex-col fixed h-full z-50 transition-all duration-300">
+        <aside id="mainSidebar" class="w-72 bg-[#1e1b4b] text-white flex flex-col fixed h-full z-[60] transition-all duration-300 transform -translate-x-full lg:translate-x-0">
             <div class="p-8 flex items-center gap-3 shrink-0">
                 <div class="size-10 rounded-xl bg-white/10 flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">auto_awesome</span>

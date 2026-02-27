@@ -1,6 +1,7 @@
 import store from '../js/store.js';
 import { dashboardController } from '../js/dashboard.controller.js';
 import { renderSidebar } from '../components/sidebar.js';
+import { renderTopBar } from '../components/mobileNav.js';
 
 export const renderDashboard = async (container) => {
     // Show initial skeleton or loader
@@ -21,7 +22,6 @@ export const renderDashboard = async (container) => {
         </div>
     `;
 
-
     // Fetch data via controller
     await dashboardController.init();
 
@@ -37,12 +37,15 @@ function renderMainLayout(container) {
     const lastUpdate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
     container.innerHTML = `
-        <div class="flex min-h-screen relative overflow-hidden bg-background-light dark:bg-background-dark">
+        <div class="flex flex-col lg:flex-row min-h-screen relative overflow-hidden bg-background-light dark:bg-background-dark">
+            <!-- Mobile Top Bar -->
+            ${renderTopBar('DASHBOARD')}
+
             <!-- Left Sidebar -->
             ${renderSidebar('#/dashboard')}
 
             <!-- Main Content Area -->
-            <main class="flex-1 flex flex-col lg:flex-row gap-6 p-4 md:p-8 overflow-x-hidden ml-72">
+            <main class="flex-1 flex flex-col lg:flex-row gap-6 p-4 md:p-8 overflow-x-hidden lg:ml-72 ml-0 pb-24 lg:pb-8">
                 <!-- Center Column -->
                 <div class="flex-1 max-w-4xl">
                     <!-- Header Section -->

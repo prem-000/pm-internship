@@ -2,6 +2,7 @@ import store from '../js/store.js';
 import { recommendationsController } from '../js/recommendations.controller.js';
 import { toast } from '../components/toast.js';
 import { renderSidebar } from '../components/sidebar.js';
+import { renderTopBar } from '../components/mobileNav.js';
 
 export const renderRecommendations = async (container) => {
     // Show loader
@@ -20,11 +21,13 @@ function renderMainLayout(container) {
     const filters = recommendationsController.state.filters;
 
     container.innerHTML = `
-<div class="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="flex flex-col lg:flex-row min-h-screen overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<!-- Mobile Top Bar -->
+${renderTopBar('MATCHES')}
 <!-- SideNavBar -->
 ${renderSidebar('#/recommendations')}
 <!-- Main Content -->
-<main class="flex-1 flex flex-col min-w-0 overflow-hidden ml-72">
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-72 ml-0 pb-24 lg:pb-0">
 <!-- Header -->
 <header class="h-16 border-b border-primary/10 bg-white dark:bg-background-dark flex items-center justify-between px-8 shrink-0">
 <div class="flex items-center gap-6 flex-1">

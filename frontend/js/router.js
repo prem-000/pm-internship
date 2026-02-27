@@ -55,11 +55,24 @@ function router() {
 window.addEventListener('hashchange', router);
 window.addEventListener('load', router);
 
-// Global Logout Handler (Event Delegation)
+// Global Interactions (Sidebar & Logout)
 document.addEventListener('click', (e) => {
+    // Sidebar Toggle
+    const toggle = e.target.closest('#sidebarToggle');
+    const sidebar = document.getElementById('mainSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (toggle) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay?.classList.remove('hidden');
+    } else if (sidebar && !sidebar.contains(e.target)) {
+        sidebar.classList.add('-translate-x-full');
+        overlay?.classList.add('hidden');
+    }
+
+    // Logout
     const logoutBtn = e.target.closest('#logoutBtn');
     if (logoutBtn) {
-        console.log('Central Logout Triggered');
         store.clearToken();
         window.location.hash = '#/login';
     }

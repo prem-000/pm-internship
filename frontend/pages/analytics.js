@@ -1,6 +1,7 @@
 import { analyticsController } from '../js/analytics.controller.js';
 import store from '../js/store.js';
 import { renderSidebar } from '../components/sidebar.js';
+import { renderTopBar } from '../components/mobileNav.js';
 
 export const renderAnalytics = async (container) => {
     // Show Loading
@@ -57,12 +58,15 @@ function renderMainLayout(container) {
     const donutMatch = totalMatch || 82;
 
     container.innerHTML = `
-<div class="flex min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
-    <!-- Sidebar Navigation -->
-    ${renderSidebar('#/analytics')}
+        <div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-x-hidden">
+            <!-- Mobile Top Bar -->
+            ${renderTopBar('ANALYTICS')}
 
-    <!-- Main Content -->
-    <main class="flex-1 ml-72 p-8">
+            <!-- Sidebar Navigation -->
+            ${renderSidebar('#/analytics')}
+
+            <!-- Main Content -->
+            <main class="flex-1 lg:ml-72 ml-0 p-4 md:p-8 pb-24 lg:pb-8">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10">
             <div>
                 <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Analytics Overview</h2>
@@ -173,8 +177,8 @@ function renderMainLayout(container) {
     }).join('')}
                 </div>
             </div>
-    </main>
-</div>
+            </main>
+        </div>
     `;
 
     setupEventListeners(container);
