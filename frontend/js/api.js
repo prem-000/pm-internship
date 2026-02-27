@@ -10,12 +10,15 @@ import store from './store.js';
 
 // Base URL configuration
 const getBaseUrl = () => {
-    // If local development (localhost or 127.0.0.1)
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+    ) {
         return 'http://localhost:8000/api';
     }
-    // Fallback to production (using Vercel proxy)
-    return '/api';
+
+    // Production backend (Render)
+    return 'https://pm-internship-u7yf.onrender.com/api';
 };
 
 const BASE_URL = getBaseUrl();
