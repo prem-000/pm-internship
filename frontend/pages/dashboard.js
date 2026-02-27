@@ -34,12 +34,12 @@ function renderMainLayout(container) {
 
     // Fallback for user name
     const userName = user?.full_name || user?.name || 'User';
-    const lastUpdate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const lastUpdate = new Date().toLocaleDateString(i18next.language, { month: 'short', day: 'numeric', year: 'numeric' });
 
     container.innerHTML = `
         <div class="flex flex-col lg:flex-row min-h-screen relative overflow-hidden bg-background-light dark:bg-background-dark">
             <!-- Mobile Top Bar -->
-            ${renderTopBar('DASHBOARD')}
+            ${renderTopBar(i18next.t('nav.dashboard'))}
 
             <!-- Left Sidebar -->
             ${renderSidebar('#/dashboard')}
@@ -51,21 +51,25 @@ function renderMainLayout(container) {
                     <!-- Header Section -->
                     <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <h2 class="text-3xl font-black tracking-tight text-slate-900">Welcome back, ${userName}!</h2>
+                            <h2 class="text-3xl font-black tracking-tight text-slate-900" data-i18n="dashboard.welcome_user" data-i18n-options='{"name": "${userName}"}'>
+                                ${i18next.t('dashboard.welcome_user', { name: userName })}
+                            </h2>
                             <p class="text-slate-500 mt-1 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-sm">schedule</span>
-                                Last update: ${lastUpdate}
+                                <span data-i18n="dashboard.last_update" data-i18n-options='{"date": "${lastUpdate}"}'>
+                                    ${i18next.t('dashboard.last_update', { date: lastUpdate })}
+                                </span>
                             </p>
                         </div>
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm min-w-[240px]">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-semibold text-slate-700">Profile Strength</span>
+                                <span class="text-sm font-semibold text-slate-700" data-i18n="dashboard.profile_strength">${i18next.t('dashboard.profile_strength')}</span>
                                 <span class="text-sm font-bold text-primary">${profileStrength}%</span>
                             </div>
                             <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                                 <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 0%" data-target-width="${profileStrength}%"></div>
                             </div>
-                            <p class="text-[10px] text-slate-400 mt-2 uppercase tracking-wide">High match potential unlocked</p>
+                            <p class="text-[10px] text-slate-400 mt-2 uppercase tracking-wide" data-i18n="dashboard.high_match_potential">${i18next.t('dashboard.high_match_potential')}</p>
                         </div>
                     </header>
 
@@ -74,9 +78,9 @@ function renderMainLayout(container) {
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-bold flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">star</span>
-                                Top Recommendations
+                                <span data-i18n="dashboard.top_recommendations">${i18next.t('dashboard.top_recommendations')}</span>
                             </h3>
-                            <span class="text-xs font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-full">AI Ranked</span>
+                            <span class="text-xs font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-full" data-i18n="dashboard.ai_ranked">${i18next.t('dashboard.ai_ranked')}</span>
                         </div>
                         <div id="recommendationsList" class="grid grid-cols-1 gap-4">
                             ${renderRecommendations(recommendations.slice(0, 5))}
@@ -87,7 +91,7 @@ function renderMainLayout(container) {
                     <section>
                         <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
                             <span class="material-symbols-outlined text-slate-400">list_alt</span>
-                            All Matching Opportunities
+                            <span data-i18n="dashboard.all_opportunities">${i18next.t('dashboard.all_opportunities')}</span>
                         </h3>
                         <div class="space-y-3">
                             ${renderOpportunityList(recommendations.slice(5))}
@@ -101,7 +105,7 @@ function renderMainLayout(container) {
 
                     <!-- Skill Gap Snapshot -->
                     <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Skill Gap Snapshot</h4>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4" data-i18n="dashboard.skill_gap_snapshot">${i18next.t('dashboard.skill_gap_snapshot')}</h4>
                         <div class="space-y-4">
                             ${gapAnalysis?.missing_skills?.length > 0
             ? renderSkillGaps(gapAnalysis.missing_skills.map(s => ({ name: s, current: 1, required: 4 })))
@@ -114,14 +118,14 @@ function renderMainLayout(container) {
         }
                         </div>
 
-                        <button class="w-full mt-6 py-2 text-[10px] font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors uppercase tracking-wider">
-                            Unlock Skill Roadmap
+                        <button class="w-full mt-6 py-2 text-[10px] font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors uppercase tracking-wider" data-i18n="dashboard.unlock_roadmap">
+                            ${i18next.t('dashboard.unlock_roadmap')}
                         </button>
                     </div>
 
                     <!-- Semantic Alignment Radar -->
                     <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Semantic Alignment</h4>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6" data-i18n="dashboard.semantic_alignment">${i18next.t('dashboard.semantic_alignment')}</h4>
                         <div class="relative aspect-square flex items-center justify-center">
                             <div class="absolute inset-0 border border-slate-100 rounded-full"></div>
                             <div class="absolute inset-4 border border-slate-100 rounded-full"></div>
@@ -138,8 +142,8 @@ function renderMainLayout(container) {
                             <span class="absolute -right-4 text-[8px] font-bold text-slate-400 uppercase rotate-90">Sector</span>
                             <span class="absolute -left-4 text-[8px] font-bold text-slate-400 uppercase -rotate-90">Vocabulary</span>
                         </div>
-                        <p class="text-[10px] text-center text-slate-400 mt-6 leading-relaxed">
-                            Your resume vocabulary aligns <span class="text-primary font-bold">${semanticAlignment}%</span> with ${user?.target_role || 'Target'} roles.
+                        <p class="text-[10px] text-center text-slate-400 mt-6 leading-relaxed" data-i18n="dashboard.vocabulary_match" data-i18n-options='{"percent": "${semanticAlignment}", "role": "${user?.target_role || "Target"}"}'>
+                            ${i18next.t('dashboard.vocabulary_match', { percent: semanticAlignment, role: user?.target_role || 'Target' })}
                         </p>
                     </div>
                 </aside>
@@ -195,7 +199,7 @@ function renderRecommendations(recs) {
                     <div class="flex-shrink-0 flex flex-col items-center justify-center">
                         <div class="size-20 rounded-2xl bg-primary/5 border-2 ${ringColor} flex flex-col items-center justify-center">
                             <span class="text-2xl font-black text-slate-900 leading-none count-up" data-target="${score}">0</span>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase mt-1">Match</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase mt-1" data-i18n="dashboard.match_label">${i18next.t('dashboard.match_label')}</span>
                         </div>
                     </div>
 
@@ -212,21 +216,23 @@ function renderRecommendations(recs) {
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
                             <div class="bg-slate-50 p-2 rounded-lg">
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Skill Match</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-i18n="dashboard.skill_match">${i18next.t('dashboard.skill_match')}</p>
                                 <p class="text-sm font-bold text-slate-800">${skillMatch}%</p>
                             </div>
                             <div class="bg-slate-50 p-2 rounded-lg">
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Semantic Fit</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-i18n="dashboard.semantic_fit">${i18next.t('dashboard.semantic_fit')}</p>
                                 <p class="text-sm font-bold text-slate-800">${semanticFit}%</p>
                             </div>
                             <div class="bg-slate-50 p-2 rounded-lg">
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Behavioral</p>
-                                <p class="text-sm font-bold ${behaviorBoost >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${behaviorBoost >= 0 ? '+' : ''}${behaviorBoost}% Boost</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-i18n="dashboard.behavioral">${i18next.t('dashboard.behavioral')}</p>
+                                <p class="text-sm font-bold ${behaviorBoost >= 0 ? 'text-emerald-600' : 'text-rose-600'}" data-i18n="dashboard.boost" data-i18n-options='{"percent": "${behaviorBoost}"}'>
+                                    ${i18next.t('dashboard.boost', { percent: (behaviorBoost >= 0 ? '+' : '') + behaviorBoost })}
+                                </p>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            <button data-action="applied" data-id="${rec.internship_id}" data-url="${rec.apply_url}" class="action-btn flex-1 bg-primary text-white text-xs font-bold py-2.5 rounded-lg hover:bg-primary/90 transition-colors">Apply Now</button>
-                            <button data-id="${rec.internship_id}" class="roadmap-btn flex-1 bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-lg hover:bg-slate-200 transition-colors">View Roadmap</button>
+                            <button data-action="applied" data-id="${rec.internship_id}" data-url="${rec.apply_url}" class="action-btn flex-1 bg-primary text-white text-xs font-bold py-2.5 rounded-lg hover:bg-primary/90 transition-colors" data-i18n="dashboard.apply_now">${i18next.t('dashboard.apply_now')}</button>
+                            <button data-id="${rec.internship_id}" class="roadmap-btn flex-1 bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-lg hover:bg-slate-200 transition-colors" data-i18n="dashboard.view_roadmap">${i18next.t('dashboard.view_roadmap')}</button>
                             <button data-action="saved" data-id="${rec.internship_id}" class="action-btn px-3 bg-white border border-slate-200 text-slate-400 rounded-lg hover:text-red-500 hover:border-red-200 transition-colors">
                                 <span class="material-symbols-outlined text-base">favorite</span>
                             </button>

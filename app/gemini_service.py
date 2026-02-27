@@ -23,10 +23,13 @@ class GeminiService:
                 f"Build one practical project incorporating these skills, then focus on mastering advanced concepts "
                 f"like optimization and security to become job-ready.")
 
-    async def get_learning_roadmap(self, internship_title: str, missing_skills: list):
+    async def get_learning_roadmap(self, internship_title: str, missing_skills: list, language: str = "en"):
         """Generates a roadmap using Gemini with a mandatory rule-based fallback."""
         if not missing_skills:
             return "You already have the core skills for this role! Focus on networking and preparing for behavioral interviews."
+
+        language_map = {"hi": "Hindi", "ta": "Tamil", "en": "English"}
+        target_lang = language_map.get(language, "English")
 
         prompt = f"""
         Create a short 2-week learning roadmap for the following internship:
@@ -35,21 +38,19 @@ class GeminiService:
         Missing skills:
         {', '.join(missing_skills)}
 
+        Language: Please provide the roadmap in {target_lang}.
         Keep it practical and beginner friendly. Format as a short paragraph.
         """
         
         try:
-            # Note: generate_content is synchronous in the basic SDK, 
-            # but we keep the method async for future-proofing or if used with loops.
             response = self.model.generate_content(prompt)
             if response and response.text:
                 return response.text.strip()
             return self._generate_rule_based_roadmap(missing_skills)
         except Exception:
-            # Mandatory Fallback: Never expose AI errors
             return self._generate_rule_based_roadmap(missing_skills)
 
-    async def get_structured_roadmap(self, internship_title: str, missing_skills: list):
+    async def get_structured_roadmap(self, internship_title: str, missing_skills: list, language: str = "en"):
         """Generates a structured multi-phase roadmap using Gemini."""
         if not missing_skills:
             return {
@@ -57,9 +58,14 @@ class GeminiService:
                 "strategy_highlight": "You already match all core requirements. Focus on specialized projects."
             }
 
+        language_map = {"hi": "Hindi", "ta": "Tamil", "en": "English"}
+        target_lang = language_map.get(language, "English")
+
         prompt = f"""
         Internship: {internship_title}
         Missing Skills: {', '.join(missing_skills)}
+        
+        Language: All text content (titles, items, strategy_highlight) MUST be in {target_lang}.
         
         Generate a professional 3-phase internship preparation roadmap.
         Each phase must have a title, duration (e.g. Week 1-2), and a list of actionable items.

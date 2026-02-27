@@ -50,6 +50,7 @@ export const api = {
 
     get: (endpoint) => api.request('GET', endpoint),
     post: (endpoint, body) => api.request('POST', endpoint, body),
+    put: (endpoint, body) => api.request('PUT', endpoint, body),
     patch: (endpoint, body) => api.request('PATCH', endpoint, body),
     delete: (endpoint) => api.request('DELETE', endpoint),
 };

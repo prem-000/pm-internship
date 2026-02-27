@@ -8,6 +8,7 @@ import { renderAnalytics } from '../pages/analytics.js';
 import { renderUsers } from '../pages/users.js';
 import { renderInternships } from '../pages/internships.js';
 import { renderLogs } from '../pages/logs.js';
+import { renderSettings } from '../pages/settings.js';
 
 const renderPlaceholder = (title) => async (container) => {
     container.innerHTML = `
@@ -29,7 +30,7 @@ const routes = {
     '#/users': { render: renderUsers, title: 'Personnel Oversight' },
     '#/internships': { render: renderInternships, title: 'Deployment Assets' },
     '#/logs': { render: renderLogs, title: 'System Terminal' },
-    '#/settings': { render: renderPlaceholder('Core Configuration'), title: 'Admin Settings' },
+    '#/settings': { render: renderSettings, title: 'Core Configuration' },
 };
 
 const notify = (event) => {

@@ -23,10 +23,12 @@ export const renderSettings = async (container) => {
 };
 
 function renderMainLayout(container, user) {
+    const memberSince = new Date(user.member_since).toLocaleDateString(i18next.language, { month: 'long', day: 'numeric', year: 'numeric' });
+
     container.innerHTML = `
 <div class="flex flex-col lg:flex-row min-h-screen relative overflow-hidden bg-background-light dark:bg-background-dark font-display">
     <!-- Mobile Top Bar -->
-    ${renderTopBar('SETTINGS')}
+    ${renderTopBar(i18next.t('nav.settings'))}
 
     <!-- Sidebar Navigation -->
     ${renderSidebar('#/settings')}
@@ -36,7 +38,7 @@ function renderMainLayout(container, user) {
         <!-- Header -->
         <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-10">
             <div class="flex items-center gap-4">
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Settings</h2>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white" data-i18n="settings.title">${i18next.t('settings.title')}</h2>
             </div>
             <div class="flex items-center gap-4 md:hidden">
                 <button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -54,33 +56,33 @@ function renderMainLayout(container, user) {
                     <div class="p-6 border-b border-slate-100 dark:border-slate-800">
                         <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary">account_circle</span>
-                            Account Information
+                            <span data-i18n="settings.account_info">${i18next.t('settings.account_info')}</span>
                         </h3>
-                        <p class="text-sm text-slate-500 mt-1">Manage your personal details and account status.</p>
+                        <p class="text-sm text-slate-500 mt-1" data-i18n="settings.account_desc">${i18next.t('settings.account_desc')}</p>
                     </div>
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-1">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Full Name</label>
+                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500" data-i18n="settings.full_name">${i18next.t('settings.full_name')}</label>
                             <p class="text-sm font-medium text-slate-900 dark:text-slate-100">${user.full_name}</p>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Email Address</label>
+                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500" data-i18n="settings.email">${i18next.t('settings.email')}</label>
                             <p class="text-sm font-medium text-slate-900 dark:text-slate-100">${user.email}</p>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Current Role</label>
+                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500" data-i18n="settings.current_role">${i18next.t('settings.current_role')}</label>
                             <div class="flex items-center gap-2">
                                 <p class="text-sm font-medium text-slate-900 dark:text-slate-100">${user.department}</p>
                                 <span class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-semibold rounded-full">${user.role}</span>
                             </div>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Member Since</label>
-                            <p class="text-sm font-medium text-slate-900 dark:text-slate-100">${new Date(user.member_since).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500" data-i18n="settings.member_since">${i18next.t('settings.member_since')}</label>
+                            <p class="text-sm font-medium text-slate-900 dark:text-slate-100">${memberSince}</p>
                         </div>
                     </div>
                     <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 flex justify-end">
-                        <button onclick="window.location.hash = '#/profile'" class="text-xs font-bold text-primary dark:text-indigo-400 hover:underline">Edit Profile</button>
+                        <button onclick="window.location.hash = '#/profile'" class="text-xs font-bold text-primary dark:text-indigo-400 hover:underline" data-i18n="settings.edit_profile">${i18next.t('settings.edit_profile')}</button>
                     </div>
                 </section>
 
@@ -91,9 +93,9 @@ function renderMainLayout(container, user) {
                             <div>
                                 <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                     <span class="material-symbols-outlined text-primary">psychology</span>
-                                    Adaptive Engine Controls
+                                    <span data-i18n="settings.engine_controls">${i18next.t('settings.engine_controls')}</span>
                                 </h3>
-                                <p class="text-sm text-slate-500 mt-1">Reset learned behavioral weights and interaction history.</p>
+                                <p class="text-sm text-slate-500 mt-1" data-i18n="settings.engine_desc">${i18next.t('settings.engine_desc')}</p>
                             </div>
                             <div class="hidden sm:block">
                                 <div class="w-12 h-12 rounded-lg bg-primary/5 flex items-center justify-center">
@@ -106,22 +108,22 @@ function renderMainLayout(container, user) {
                         <!-- Action 1: Reset Behavior -->
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
                             <div class="space-y-1">
-                                <p class="text-sm font-bold text-slate-900 dark:text-white">Reset Behavioral Boost</p>
-                                <p class="text-xs text-slate-500">Resets sector-specific and skill-based preference weighting to default values.</p>
+                                <p class="text-sm font-bold text-slate-900 dark:text-white" data-i18n="settings.reset_behavior_title">${i18next.t('settings.reset_behavior_title')}</p>
+                                <p class="text-xs text-slate-500" data-i18n="settings.reset_behavior_desc">${i18next.t('settings.reset_behavior_desc')}</p>
                             </div>
                             <button id="resetBehaviorBtn" class="px-4 py-2 border-2 border-primary text-primary dark:border-indigo-400 dark:text-indigo-400 text-xs font-bold rounded-lg hover:bg-primary hover:text-white dark:hover:bg-indigo-400 dark:hover:text-slate-900 transition-all active:scale-[0.98] whitespace-nowrap flex items-center gap-2">
-                                <span class="btn-text">Reset Behavioral Boost</span>
+                                <span class="btn-text" data-i18n="settings.reset_behavior_btn">${i18next.t('settings.reset_behavior_btn')}</span>
                             </button>
                         </div>
 
                         <!-- Action 2: Clear Feedback -->
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-lg bg-red-50/30 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20">
                             <div class="space-y-1">
-                                <p class="text-sm font-bold text-slate-900 dark:text-white">Clear Feedback History</p>
-                                <p class="text-xs text-slate-500">Irreversibly removes all saved, applied, and viewed interactions from the engine's memory.</p>
+                                <p class="text-sm font-bold text-slate-900 dark:text-white" data-i18n="settings.clear_feedback_title">${i18next.t('settings.clear_feedback_title')}</p>
+                                <p class="text-xs text-slate-500" data-i18n="settings.clear_feedback_desc">${i18next.t('settings.clear_feedback_desc')}</p>
                             </div>
                             <button id="clearFeedbackBtn" class="px-4 py-2 border-2 border-red-500 text-red-500 text-xs font-bold rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-[0.98] whitespace-nowrap flex items-center gap-2">
-                                <span class="btn-text">Clear Feedback History</span>
+                                <span class="btn-text" data-i18n="settings.clear_feedback_btn">${i18next.t('settings.clear_feedback_btn')}</span>
                             </button>
                         </div>
                     </div>
@@ -129,7 +131,8 @@ function renderMainLayout(container, user) {
                         <div class="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-lg">
                             <span class="material-symbols-outlined text-amber-600 dark:text-amber-500">warning</span>
                             <p class="text-xs text-amber-800 dark:text-amber-400 leading-relaxed">
-                                <strong>Caution:</strong> These actions are permanent and will immediately affect the relevance of your internship recommendations.
+                                <strong data-i18n="settings.caution">${i18next.t('settings.caution')}:</strong> 
+                                <span data-i18n="settings.caution_desc">${i18next.t('settings.caution_desc')}</span>
                             </p>
                         </div>
                     </div>
@@ -141,10 +144,10 @@ function renderMainLayout(container, user) {
                     <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_nPpm5K4MKj_0MYuiKB5zIksH_DiJpyEpM9mQV5WYOi63qDbiO-wjoQRwSXJpG9oDHRPGvVFIKZyM9zuMqDvQ9rMoM3Q_nUfT_2kYiVSN21jx9K5JEUWjMs7qkVoasB8GIt-Af-pwKqKiIlGyqjRzokuuRc_ynO3qPGvsPMapNEiB5GyIa6gApgzGxa2yjh2kyExDpYUNa1zdA7I7mKCer3ILu499cxj2kpQYb7hKJRHtxYTF1y5yfU5mi2_K2odoUAIDMumqrC57" 
                          alt="Abstract tech pattern" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay">
                     <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                        <h4 class="text-white font-bold text-sm">Need Help?</h4>
-                        <p class="text-white/70 text-xs mt-1 max-w-xs">Our support team can help you with engine fine-tuning and profile optimization.</p>
-                        <button class="mt-3 px-4 py-1.5 bg-white text-primary text-[10px] font-bold rounded-full hover:bg-slate-100 transition-colors">
-                            Contact Support
+                        <h4 class="text-white font-bold text-sm" data-i18n="settings.need_help">${i18next.t('settings.need_help')}</h4>
+                        <p class="text-white/70 text-xs mt-1 max-w-xs" data-i18n="settings.support_desc">${i18next.t('settings.support_desc')}</p>
+                        <button class="mt-3 px-4 py-1.5 bg-white text-primary text-[10px] font-bold rounded-full hover:bg-slate-100 transition-colors" data-i18n="settings.contact_support">
+                            ${i18next.t('settings.contact_support')}
                         </button>
                     </div>
                 </div>
@@ -170,19 +173,19 @@ function setupEventListeners(container) {
 
     resetBehaviorBtn.onclick = () => {
         showConfirmModal({
-            title: 'Reset Behavioral Boost?',
-            message: 'This will reset all your sector-specific and skill-based preferences to zero. Your recommendations will lose their personalization temporarly.',
-            confirmText: 'Yes, Reset Engine',
+            title: i18next.t('settings.confirm_reset_title'),
+            message: i18next.t('settings.confirm_reset_msg'),
+            confirmText: i18next.t('settings.confirm_reset_btn'),
             onConfirm: async () => {
                 const originalContent = resetBehaviorBtn.innerHTML;
                 resetBehaviorBtn.disabled = true;
-                resetBehaviorBtn.innerHTML = `<span class="size-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> Resetting...`;
+                resetBehaviorBtn.innerHTML = `<span class="size-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> ${i18next.t('settings.resetting')}`;
 
                 try {
                     await settingsController.handleResetBehavior();
-                    toast.success('Behavioral engine reset successfully!');
+                    toast.success(i18next.t('settings.reset_behavior_success') || 'Behavioral engine reset successfully!');
                 } catch (error) {
-                    toast.error('Failed to reset engine. Try again.');
+                    toast.error(i18next.t('settings.reset_behavior_error') || 'Failed to reset engine. Try again.');
                 } finally {
                     resetBehaviorBtn.disabled = false;
                     resetBehaviorBtn.innerHTML = originalContent;
@@ -193,22 +196,22 @@ function setupEventListeners(container) {
 
     clearFeedbackBtn.onclick = () => {
         showConfirmModal({
-            title: 'Clear Feedback History?',
-            message: 'WARNING: This will permanently delete your saved internships, applied history, and viewed tracking. This action cannot be undone.',
-            confirmText: 'Confirm Deletion',
+            title: i18next.t('settings.confirm_clear_title'),
+            message: i18next.t('settings.confirm_clear_msg'),
+            confirmText: i18next.t('settings.confirm_clear_btn'),
             isDestructive: true,
             onConfirm: async () => {
                 const originalContent = clearFeedbackBtn.innerHTML;
                 clearFeedbackBtn.disabled = true;
-                clearFeedbackBtn.innerHTML = `<span class="size-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> Clearing...`;
+                clearFeedbackBtn.innerHTML = `<span class="size-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> ${i18next.t('settings.clearing')}`;
 
                 try {
                     await settingsController.handleClearFeedback();
                     container.querySelector('#engineCard').classList.add('animate-shake');
                     setTimeout(() => container.querySelector('#engineCard').classList.remove('animate-shake'), 400);
-                    toast.success('Interaction mapping cleared permanently.');
+                    toast.success(i18next.t('settings.clear_feedback_success') || 'Interaction mapping cleared permanently.');
                 } catch (error) {
-                    toast.error('Deletion failed. System locked.');
+                    toast.error(i18next.t('settings.clear_feedback_error') || 'Deletion failed. System locked.');
                 } finally {
                     clearFeedbackBtn.disabled = false;
                     clearFeedbackBtn.innerHTML = originalContent;

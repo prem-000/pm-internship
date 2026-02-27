@@ -108,12 +108,26 @@
     <div class="radial-glow"></div>
 
     <!-- Header -->
-    <header class="pt-16 pb-8 text-center animate-fade-in">
-        <div class="inline-block relative">
-            <h1 class="text-4xl md:text-6xl font-black text-govNavy tracking-tight px-4 italic"></h1>
+    <header class="pt-16 pb-8 text-center animate-fade-in relative">
+        <!-- Language Switcher -->
+        <div
+            class="absolute top-4 right-8 flex items-center gap-4 bg-white/50 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-sm">
+            <button onclick="changeLanguage('en')" class="text-xs font-black hover:text-govSaffron transition-colors"
+                id="btn-en">EN</button>
+            <div class="w-px h-3 bg-slate-300"></div>
+            <button onclick="changeLanguage('hi')" class="text-xs font-black hover:text-govSaffron transition-colors"
+                id="btn-hi">हिंदी</button>
+            <div class="w-px h-3 bg-slate-300"></div>
+            <button onclick="changeLanguage('ta')" class="text-xs font-black hover:text-govSaffron transition-colors"
+                id="btn-ta">தமிழ்</button>
         </div>
-        <p class="mt-6 text-sm md:text-base text-slate-500 italic font-medium">Empowering Students Through Intelligent
-            Internship Matching</p>
+
+        <div class="inline-block relative">
+            <!-- <h1 class="text-4xl md:text-6xl font-black text-govNavy tracking-tight px-4 italic" data-i18n="app_name">
+                AIRE</h1> -->
+        </div>
+        <p class="mt-6 text-sm md:text-base text-slate-500 italic font-medium"
+            data-i18n="landing.hero_subtitle_tagline">Empowering Students Through Intelligent Internship Matching</p>
     </header>
 
     <!-- Main Content -->
@@ -121,17 +135,19 @@
         class="flex-1 container mx-auto px-6 max-w-7xl flex flex-col lg:flex-row items-center justify-center gap-16 py-12">
         <!-- Left: Hero Info -->
         <div class="flex-1 space-y-8 max-w-xl">
-            <h2 class="text-4xl md:text-6xl font-black text-govNavy leading-[1.1] tracking-tight">
+            <h2 class="text-4xl md:text-6xl font-black text-govNavy leading-[1.1] tracking-tight"
+                data-i18n="landing.hero_title">
                 AI-Powered Adaptive Internship Allocation System
             </h2>
-            <p class="text-lg text-slate-600 leading-relaxed font-medium">
+            <p class="text-lg text-slate-600 leading-relaxed font-medium" data-i18n="landing.hero_subtitle">
                 The centralized national platform leveraging skill-based semantic analysis and machine learning to
                 bridge the gap between academic potential and industrial requirements. Our system ensures equitable,
                 merit-based opportunities for students across the nation.
             </p>
             <div class="pt-4">
                 <a href="login.html"
-                    class="inline-block bg-govNavy text-white px-10 py-5 rounded-lg text-sm font-black uppercase tracking-widest shadow-2xl hover:bg-blue-900 transition-all active:scale-95 shadow-indigo-500/20">
+                    class="inline-block bg-govNavy text-white px-10 py-5 rounded-lg text-sm font-black uppercase tracking-widest shadow-2xl hover:bg-blue-900 transition-all active:scale-95 shadow-indigo-500/20"
+                    data-i18n="landing.get_started">
                     Get Started
                 </a>
             </div>
@@ -149,9 +165,10 @@
                     1</div>
                 <div
                     class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
-                    <h3 class="font-bold text-govNavy mb-1">Student Profile Submission</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Secure digital document and
-                        credentials vault.</p>
+                    <h3 class="font-bold text-govNavy mb-1" data-i18n="landing.step_1_title">Student Profile Submission
+                    </h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium" data-i18n="landing.step_1_desc">Secure
+                        digital document and credentials vault.</p>
                 </div>
             </div>
 
@@ -162,9 +179,10 @@
                     2</div>
                 <div
                     class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
-                    <h3 class="font-bold text-govNavy mb-1">AI Skill Analysis Engine</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Semantic parsing of academic and
-                        technical skills.</p>
+                    <h3 class="font-bold text-govNavy mb-1" data-i18n="landing.step_2_title">AI Skill Analysis Engine
+                    </h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium" data-i18n="landing.step_2_desc">
+                        Semantic parsing of academic and technical skills.</p>
                 </div>
             </div>
 
@@ -175,9 +193,9 @@
                     3</div>
                 <div
                     class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
-                    <h3 class="font-bold text-govNavy mb-1">Adaptive Ranking Model</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Merit-weighted matching with industry
-                        requirements.</p>
+                    <h3 class="font-bold text-govNavy mb-1" data-i18n="landing.step_3_title">Adaptive Ranking Model</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium" data-i18n="landing.step_3_desc">
+                        Merit-weighted matching with industry requirements.</p>
                 </div>
             </div>
 
@@ -188,9 +206,10 @@
                     4</div>
                 <div
                     class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex-1 group hover:border-govNavy/20 transition-all">
-                    <h3 class="font-bold text-govNavy mb-1">Verified Internship Allocation</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Direct placement with digital offer
-                        issuance.</p>
+                    <h3 class="font-bold text-govNavy mb-1" data-i18n="landing.step_4_title">Verified Internship
+                        Allocation</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium" data-i18n="landing.step_4_desc">Direct
+                        placement with digital offer issuance.</p>
                 </div>
             </div>
         </div>
@@ -200,10 +219,52 @@
     <footer class="py-8 border-t border-slate-100 mt-12">
         <div class="text-center">
             <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                © 2026 AIRE | Intelligent Internship Matching
+                © 2026 <span data-i18n="app_name">AIRE</span> | <span
+                    data-i18n="landing.hero_subtitle_tagline">Intelligent Internship Matching</span>
             </p>
         </div>
     </footer>
+
+    <!-- i18n Integration -->
+    <script src="https://unpkg.com/i18next@23.7.11/dist/umd/i18next.min.js"></script>
+    <script
+        src="https://unpkg.com/i18next-browser-languagedetector@7.2.0/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
+    <script type="module">
+        import { initI18n } from './i18n/config.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initI18n();
+            updateUI();
+        });
+
+        window.changeLanguage = async (lng) => {
+            await i18next.changeLanguage(lng);
+            localStorage.setItem('i18nextLng', lng);
+            updateUI();
+        };
+
+        function updateUI() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerText = i18next.t(key);
+            });
+
+            // Highlight active language
+            const currentLng = i18next.language.split('-')[0];
+            ['en', 'hi', 'ta'].forEach(lng => {
+                const btn = document.getElementById(`btn-${lng}`);
+                if (btn) {
+                    if (lng === currentLng) {
+                        btn.classList.add('text-govNavy');
+                        btn.classList.remove('text-slate-400');
+                    } else {
+                        btn.classList.remove('text-govNavy');
+                        btn.classList.add('text-slate-400');
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

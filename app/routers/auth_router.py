@@ -41,6 +41,7 @@ async def register(user: UserRegister):
         "target_role": None,
         "warning_count": 0,
         "is_blocked": False,
+        "preferred_language": "en",
         "created_at": datetime.utcnow()
     }
     
@@ -63,4 +64,8 @@ async def login(user_data: UserRegister):
         raise HTTPException(status_code=403, detail="Account is blocked")
         
     access_token = create_access_token(data={"sub": user["email"], "role": user["role"]})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "preferred_language": user.get("preferred_language", "en")
+    }

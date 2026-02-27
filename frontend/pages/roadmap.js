@@ -37,15 +37,15 @@ async function renderSelectionScreen(container) {
     container.innerHTML = `
         <div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-x-hidden">
             <!-- Mobile Top Bar -->
-            ${renderTopBar('ROADMAPS')}
+            ${renderTopBar(i18next.t('nav.roadmap'))}
 
             <!-- Sidebar -->
             ${renderSidebar('#/roadmap')}
 
             <main class="flex-1 lg:ml-72 ml-0 p-6 md:p-12 overflow-y-auto pb-24 lg:pb-12">
                 <header class="mb-12">
-                    <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-2">My Roadmaps</h2>
-                    <p class="text-slate-500">Select an internship to view your personalized skill gap analysis and AI-generated roadmap.</p>
+                    <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-2" data-i18n="roadmap.selection_title">${i18next.t('roadmap.selection_title')}</h2>
+                    <p class="text-slate-500" data-i18n="roadmap.selection_desc">${i18next.t('roadmap.selection_desc')}</p>
                 </header>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -55,7 +55,7 @@ async function renderSelectionScreen(container) {
                                 <div class="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center text-primary">
                                     <span class="material-symbols-outlined">business</span>
                                 </div>
-                                <span class="text-xs font-bold text-slate-400 group-hover:text-primary transition-colors">View Analysis →</span>
+                                <span class="text-xs font-bold text-slate-400 group-hover:text-primary transition-colors" data-i18n="roadmap.view_analysis">${i18next.t('roadmap.view_analysis')} →</span>
                             </div>
                             <h3 class="font-bold text-slate-900 dark:text-white leading-tight mb-1">${rec.title}</h3>
                             <p class="text-sm text-slate-500 mb-4">${rec.company || rec.organization}</p>
@@ -63,14 +63,14 @@ async function renderSelectionScreen(container) {
                                 <div class="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                     <div class="h-full bg-primary" style="width: ${rec.score || rec.overall_score}%"></div>
                                 </div>
-                                <span class="text-[10px] font-bold text-slate-400">${Math.round(rec.score || rec.overall_score)}% Match</span>
+                                <span class="text-[10px] font-bold text-slate-400">${Math.round(rec.score || rec.overall_score)}% <span data-i18n="roadmap.match_label">${i18next.t('roadmap.match_label')}</span></span>
                             </div>
                         </a>
                     `).join('') : `
                         <div class="col-span-full py-20 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center">
                             <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">map</span>
-                            <p class="text-slate-500 font-medium mb-4">No active recommendations to generate roadmaps from.</p>
-                            <a href="#/recommendations" class="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-slate-900 transition-all">Explore Recommendations</a>
+                            <p class="text-slate-500 font-medium mb-4" data-i18n="roadmap.no_recs">${i18next.t('roadmap.no_recs')}</p>
+                            <a href="#/recommendations" class="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-slate-900 transition-all" data-i18n="roadmap.explore_btn">${i18next.t('roadmap.explore_btn')}</a>
                         </div>
                     `}
                 </div>
@@ -85,7 +85,7 @@ function renderMainLayout(container) {
             <div class="flex flex-col items-center justify-center min-h-screen bg-background-light p-8">
                 <span class="material-symbols-outlined text-6xl text-rose-500 mb-4">error</span>
                 <p class="text-slate-900 font-bold text-xl mb-2">${roadmapController.state.error}</p>
-                <button onclick="window.location.hash = '#/recommendations'" class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-lg">Back to Recommendations</button>
+                <button onclick="window.location.hash = '#/recommendations'" class="bg-primary text-white px-6 py-2 rounded-lg font-bold shadow-lg" data-i18n="roadmap.error_back_btn">${i18next.t('roadmap.error_back_btn')}</button>
             </div>
         `;
         return;
@@ -98,7 +98,7 @@ function renderMainLayout(container) {
     container.innerHTML = `
 <div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-x-hidden">
 <!-- Mobile Top Bar -->
-${renderTopBar('ROADMAP')}
+${renderTopBar(i18next.t('nav.roadmap'))}
 
 <!-- Sidebar -->
 ${renderSidebar('#/roadmap')}
@@ -110,7 +110,7 @@ ${renderSidebar('#/roadmap')}
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary/60">folder_open</span>
 <span class="text-slate-400 text-sm">/</span>
-<h2 class="text-slate-900 dark:text-slate-100 font-bold text-sm tracking-tight">Roadmap / Gap Analysis</h2>
+<h2 class="text-slate-900 dark:text-slate-100 font-bold text-sm tracking-tight" data-i18n="roadmap.header_path">${i18next.t('roadmap.header_path')}</h2>
 </div>
 <div class="flex items-center gap-4">
     <p class="text-xs font-bold text-slate-400">${internship.title} • ${internship.company}</p>
@@ -121,11 +121,11 @@ ${renderSidebar('#/roadmap')}
 <div class="grid grid-cols-12 gap-6">
 <!-- Main Circular Score -->
 <div class="col-span-12 lg:col-span-4 bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center">
-<h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-6">Overall Match Score</h3>
+<h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-6" data-i18n="roadmap.overall_match">${i18next.t('roadmap.overall_match')}</h3>
 <div id="overallCircle" class="relative w-40 h-40 flex items-center justify-center rounded-full transition-all duration-700" style="background: conic-gradient(#1e1b4b 0%, #e2e8f0 0% 100%)">
 <div class="absolute inset-2 bg-white dark:bg-slate-900 rounded-full flex flex-col items-center justify-center">
 <span id="overallNumber" class="text-4xl font-black text-primary">0%</span>
-<span id="overallLabel" class="text-[10px] text-slate-400 font-bold uppercase">${scores.isProjected ? 'Projected Fit' : 'Current Fit'}</span>
+<span id="overallLabel" class="text-[10px] text-slate-400 font-bold uppercase" data-i18n="${scores.isProjected ? 'roadmap.projected_fit' : 'roadmap.current_fit'}">${i18next.t(scores.isProjected ? 'roadmap.projected_fit' : 'roadmap.current_fit')}</span>
 </div>
 </div>
 </div>
@@ -134,21 +134,21 @@ ${renderSidebar('#/roadmap')}
 <div class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
 <span class="material-symbols-outlined text-primary mb-2">stars</span>
 <div>
-<p class="text-slate-500 text-sm font-medium">Skill Match</p>
+<p class="text-slate-500 text-sm font-medium" data-i18n="roadmap.skill_match">${i18next.t('roadmap.skill_match')}</p>
 <p id="skillMatchNumber" class="text-3xl font-bold text-slate-900 dark:text-slate-100">${scores.skill_match}%</p>
 </div>
 </div>
 <div class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
 <span class="material-symbols-outlined text-primary mb-2">hub</span>
 <div>
-<p class="text-slate-500 text-sm font-medium">Semantic Fit</p>
+<p class="text-slate-500 text-sm font-medium" data-i18n="roadmap.semantic_fit">${i18next.t('roadmap.semantic_fit')}</p>
 <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">${scores.semantic}%</p>
 </div>
 </div>
 <div class="bg-primary text-white p-6 rounded-xl border border-primary flex flex-col justify-between">
 <span class="material-symbols-outlined text-indigo-300 mb-2">rocket_launch</span>
 <div>
-<p class="text-indigo-200 text-sm font-medium">Behavioral Boost</p>
+<p class="text-indigo-200 text-sm font-medium" data-i18n="roadmap.behavioral_boost">${i18next.t('roadmap.behavioral_boost')}</p>
 <p class="text-3xl font-bold">+${scores.behavior}%</p>
 </div>
 </div>
@@ -160,9 +160,9 @@ ${renderSidebar('#/roadmap')}
 <!-- Skill Gap List -->
 <div class="col-span-12 xl:col-span-8 space-y-6">
 <div class="flex items-center justify-between">
-<h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">Skill Gap Impact</h2>
+<h2 class="text-xl font-bold text-slate-900 dark:text-slate-100" data-i18n="roadmap.skill_gap_impact">${i18next.t('roadmap.skill_gap_impact')}</h2>
 <div class="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
-<span class="text-xs font-bold text-slate-600 dark:text-slate-400">Simulate Learning</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-400" data-i18n="roadmap.simulate_learning">${i18next.t('roadmap.simulate_learning')}</span>
 <button id="simulateToggle" class="w-10 h-5 bg-slate-400 rounded-full relative flex items-center px-1 transition-colors">
 <div class="w-3.5 h-3.5 bg-white rounded-full transition-transform ${roadmapController.state.simulationEnabled ? 'translate-x-4' : ''}"></div>
 </button>
@@ -178,11 +178,13 @@ ${gap_analysis.missing_skills.map((skill, i) => `
 </div>
 <div>
 <h4 class="font-bold text-slate-900 dark:text-slate-100">${skill.name}</h4>
-<p class="text-xs text-slate-500 italic">Impact on Overall Match</p>
+<p class="text-xs text-slate-500 italic" data-i18n="roadmap.impact_label">${i18next.t('roadmap.impact_label')}</p>
 </div>
 </div>
 <div class="text-right">
-<span class="text-xs font-bold text-primary">+${skill.impact_score}% Impact</span>
+<span class="text-xs font-bold text-primary" data-i18n="roadmap.impact_score" data-i18n-options='{"score": "${skill.impact_score}"}'>
+    ${i18next.t('roadmap.impact_score', { score: skill.impact_score })}
+</span>
 </div>
 </div>
 <div class="relative h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -190,8 +192,8 @@ ${gap_analysis.missing_skills.map((skill, i) => `
 <div class="absolute left-0 top-0 h-full bg-primary opacity-30 rounded-full transition-all duration-1000 delay-300" style="width: 0%" data-width="${skill.target_progress_percent}%"></div>
 </div>
 <div class="flex justify-between mt-2">
-<span class="text-[10px] font-medium text-slate-400">Current proficiency</span>
-<span class="text-[10px] font-bold text-primary">Target proficiency</span>
+<span class="text-[10px] font-medium text-slate-400" data-i18n="roadmap.current_proficiency">${i18next.t('roadmap.current_proficiency')}</span>
+<span class="text-[10px] font-bold text-primary" data-i18n="roadmap.target_proficiency">${i18next.t('roadmap.target_proficiency')}</span>
 </div>
 </div>
 `).join('')}
@@ -204,9 +206,9 @@ ${gap_analysis.missing_skills.map((skill, i) => `
 <div class="bg-primary p-6 text-white">
 <div class="flex items-center gap-2 mb-1">
 <span class="material-symbols-outlined text-indigo-300">smart_toy</span>
-<h3 class="text-sm font-bold uppercase tracking-wider">AI Advisory Roadmap</h3>
+<h3 class="text-sm font-bold uppercase tracking-wider" data-i18n="roadmap.ai_advisory_title">${i18next.t('roadmap.ai_advisory_title')}</h3>
 </div>
-<p class="text-xs text-indigo-200">Generated by Gemini Engine</p>
+<p class="text-xs text-indigo-200" data-i18n="roadmap.generated_by">${i18next.t('roadmap.generated_by')}</p>
 </div>
 <div class="p-6">
 <div class="relative border-l-2 border-slate-100 dark:border-slate-800 ml-3 space-y-8">
@@ -231,7 +233,7 @@ ${phase.items.map(item => `
 <div class="mt-8 p-4 bg-primary/5 dark:bg-primary/20 rounded-lg border border-primary/10">
 <div class="flex items-center gap-2 mb-2">
 <span class="material-symbols-outlined text-primary text-sm">lightbulb</span>
-<h6 class="text-xs font-bold text-primary uppercase tracking-tighter">Strategy Highlight</h6>
+<h6 class="text-xs font-bold text-primary uppercase tracking-tighter" data-i18n="roadmap.strategy_highlight">${i18next.t('roadmap.strategy_highlight')}</h6>
 </div>
 <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
     "${gemini_roadmap.strategy_highlight}"
@@ -291,7 +293,9 @@ function updateScoresUI(container) {
     overallCircle.style.background = `conic-gradient(#1e1b4b ${scores.overall}%, #e2e8f0 ${scores.overall}% 100%)`;
 
     // Update Label
-    overallLabel.innerText = scores.isProjected ? 'Projected Fit' : 'Current Fit';
+    const labelKey = scores.isProjected ? 'roadmap.projected_fit' : 'roadmap.current_fit';
+    overallLabel.innerText = i18next.t(labelKey);
+    overallLabel.setAttribute('data-i18n', labelKey);
     overallLabel.classList.toggle('text-primary', scores.isProjected);
 
     // Update Skill Match

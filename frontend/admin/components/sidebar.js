@@ -11,7 +11,7 @@ export const renderSidebar = (currentPath) => {
         <div class="h-full flex flex-col py-8">
             <div class="flex items-center gap-3 mb-10 px-8">
                 <div class="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                    <span class="material-symbols-outlined text-white font-black">token</span>
+                    <span class="material-symbols-outlined text-white font-black">school</span>
                 </div>
                 <div>
                     <h1 class="text-lg font-black tracking-tight text-primary">AIRE <span class="text-accent">ADMIN</span></h1>
@@ -34,28 +34,6 @@ export const renderSidebar = (currentPath) => {
                         <span class="material-symbols-outlined size-5 flex items-center justify-center">settings_suggest</span>
                         <span>Settings</span>
                     </a>
-                </div>
-
-                <!-- System Status Widget -->
-                <div class="p-5 rounded-2xl bg-bg-light border border-border-color">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-[10px] font-black text-text-muted uppercase tracking-widest">Core Status</span>
-                        <div class="status-pulse online"></div>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-[11px] font-medium text-text-muted">ML Engine</span>
-                            <span class="text-[10px] font-black text-success uppercase">Active</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-[11px] font-medium text-text-muted">DB Latency</span>
-                            <span class="text-[11px] font-bold text-text-main">14ms</span>
-                        </div>
-                        <div class="w-full bg-border-color h-1.5 rounded-full overflow-hidden mt-2">
-                            <div class="bg-primary h-full w-[85%]"></div>
-                        </div>
-                    </div>
                 </div>
 
                 <button id="logout-btn" class="w-full group flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-bold text-danger hover:bg-danger/5 transition-all border border-transparent hover:border-danger/10">

@@ -121,6 +121,9 @@
             scrollbar-width: none;
         }
     </style>
+    <script src="https://unpkg.com/i18next/dist/umd/i18next.min.js"></script>
+    <script
+        src="https://unpkg.com/i18next-browser-languagedetector/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
 </head>
 
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
@@ -132,6 +135,13 @@
     </div>
 
     <script type="module" src="js/router.js"></script>
+    <script type="module">
+        import i18nConfig from './i18n/config.js';
+        window.changeLanguage = i18nConfig.changeLanguage;
+        document.addEventListener('DOMContentLoaded', async () => {
+            await i18nConfig.init();
+        });
+    </script>
 </body>
 
 </html>

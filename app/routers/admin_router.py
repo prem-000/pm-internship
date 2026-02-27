@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Body, Depends, Request, BackgroundTasks, WebSocket, WebSocketDisconnect
 from ..utils.limiter import limiter
 from ..database import get_database
-from ..models.schemas import InternshipCreate, AdminLogin
+from ..models.schemas import InternshipCreate, AdminLogin, LanguageSettingsUpdate
 from ..recommender import recommender
 from ..utils.auth_deps import verify_admin
 from ..utils.jwt_handler import create_access_token
@@ -259,6 +259,45 @@ async def get_detailed_health():
         "cache_latency": "2ms",
         "status": "online"
     }
+
+@router.get("/settings/language", dependencies=[Depends(verify_admin)])
+async def get_language_settings():
+    db = get_database()
+    settings = db.global_settings.find_one({"_id": "global_settings"})
+    if not settings:
+        default_settings = {
+            "_id": "global_settings",
+            "supported_languages": ["en", "hi", "ta"],
+            "default_language": "en",
+            "fallback_language": "en",
+            "roadmap_language_mode": "match_user",
+            "admin_selected_language": "en",
+            "internship_content_mode": "english_only"
+        }
+        db.global_settings.insert_one(default_settings)
+        return default_settings
+    return settings
+
+@router.put("/settings/language", dependencies=[Depends(verify_admin)])
+async def update_language_settings(config: LanguageSettingsUpdate):
+    db = get_database()
+    update_data = {k: v for k, v in config.model_dump().items() if v is not None}
+    db.global_settings.update_one(
+        {"_id": "global_settings"},
+        {"$set": update_data},
+        upsert=True
+    )
+    return {"message": "Language settings updated successfully"}
+
+@router.get("/analytics/languages", dependencies=[Depends(verify_admin)])
+async def get_language_analytics():
+    db = get_database()
+    pipeline = [
+        {"$group": {"_id": "$preferred_language", "count": {"$sum": 1}}},
+        {"$project": {"language": "$_id", "count": 1, "_id": 0}}
+    ]
+    stats = list(db.users.aggregate(pipeline))
+    return stats
 
 @router.websocket("/ws/logs")
 async def websocket_logs(websocket: WebSocket):

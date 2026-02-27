@@ -17,6 +17,9 @@ const store = {
     loading: false,
     profileLoading: false,
 
+    preferredLanguage: localStorage.getItem('aire_lang') || 'en',
+    apiBase: window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : 'https://pm-internship-u7yf.onrender.com/api',
+
     setToken(token) {
         this.token = token;
         this.isAuthenticated = true;
@@ -26,6 +29,18 @@ const store = {
     setUser(user) {
         this.user = user;
         sessionStorage.setItem('aire_user', JSON.stringify(user));
+        if (user.preferred_language) {
+            this.setPreferredLanguage(user.preferred_language);
+        }
+    },
+
+    setPreferredLanguage(lang) {
+        this.preferredLanguage = lang;
+        localStorage.setItem('aire_lang', lang);
+    },
+
+    getPreferredLanguage() {
+        return this.preferredLanguage;
     },
 
     setDashboardData(data) {

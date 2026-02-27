@@ -22,10 +22,12 @@ function renderMainLayout(container) {
     // Local state for skills (managed differently because it's a list)
     let currentSkills = [...(profile?.skills || [])];
 
+    const lastUpdate = profile?.last_updated ? new Date(profile.last_updated).toLocaleDateString(i18next.language) : i18next.t('common.never', 'Never');
+
     container.innerHTML = `
         <div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark overflow-x-hidden">
             <!-- Mobile Top Bar -->
-            ${renderTopBar('PROFILE')}
+            ${renderTopBar(i18next.t('nav.profile'))}
 
             <!-- Left Sidebar -->
             ${renderSidebar('#/profile')}
@@ -34,22 +36,26 @@ function renderMainLayout(container) {
             <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto lg:ml-72 ml-0 pb-24 lg:pb-8 w-full">
                 <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 entrance-section">
                     <div>
-                        <h2 class="text-3xl font-black text-slate-900 leading-tight">Welcome back, ${profile?.full_name || user?.name || 'User'}!</h2>
+                        <h2 class="text-3xl font-black text-slate-900 leading-tight" data-i18n="profile.welcome_user" data-i18n-options='{"name": "${profile?.full_name || user?.name || "User"}"}'>
+                            ${i18next.t('profile.welcome_user', { name: profile?.full_name || user?.name || 'User' })}
+                        </h2>
                         <p class="text-slate-500 mt-1 flex items-center gap-2">
                             <span class="material-symbols-outlined text-sm">schedule</span>
-                            Last update: ${profile?.last_updated ? new Date(profile.last_updated).toLocaleDateString() : 'Never'}
+                            <span data-i18n="profile.last_update" data-i18n-options='{"date": "${lastUpdate}"}'>
+                                ${i18next.t('profile.last_update', { date: lastUpdate })}
+                            </span>
                         </p>
                     </div>
                     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm min-w-[260px] relative overflow-hidden group">
                         <div class="absolute top-0 left-0 w-1 h-full bg-primary/20"></div>
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Profile Strength</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest" data-i18n="profile.strength_label">${i18next.t('profile.strength_label')}</span>
                             <span class="text-sm font-black text-primary" id="strengthValue">0%</span>
                         </div>
                         <div class="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
                             <div id="strengthBar" class="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)] transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]" style="width: 0%"></div>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-2 font-medium">Complete more fields to reach 100%.</p>
+                        <p class="text-[10px] text-slate-400 mt-2 font-medium" data-i18n="profile.complete_fields">${i18next.t('profile.complete_fields')}</p>
                     </div>
                 </header>
 
@@ -60,27 +66,27 @@ function renderMainLayout(container) {
                             <div class="size-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
                                 <span class="material-symbols-outlined text-xl">person</span>
                             </div>
-                            <h3 class="font-bold text-slate-900 text-lg">Personal Information</h3>
+                            <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.personal_info">${i18next.t('profile.personal_info')}</h3>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.full_name">${i18next.t('profile.full_name')}</label>
                                 <input type="text" id="fullNameInput" value="${profile?.full_name || ''}" placeholder="John Doe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Education</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.education">${i18next.t('profile.education')}</label>
                                 <input type="text" id="educationInput" value="${profile?.education || ''}" placeholder="Bachelor of Science" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">University</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.university">${i18next.t('profile.university')}</label>
                                 <input type="text" id="universityInput" value="${profile?.university || ''}" placeholder="Stanford University" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Graduation Year</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.grad_year">${i18next.t('profile.grad_year')}</label>
                                 <input type="number" id="graduationYearInput" value="${profile?.graduation_year || ''}" placeholder="2025" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
                             </div>
                             <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Bio</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.bio">${i18next.t('profile.bio')}</label>
                                 <textarea id="bioInput" rows="3" placeholder="Tell us about yourself..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium resize-none">${profile?.bio || ''}</textarea>
                             </div>
                         </div>
@@ -92,14 +98,14 @@ function renderMainLayout(container) {
                             <div class="size-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
                                 <span class="material-symbols-outlined text-xl">psychology</span>
                             </div>
-                            <h3 class="font-bold text-slate-900 text-lg">Skills Manager</h3>
+                            <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.skills_manager">${i18next.t('profile.skills_manager')}</h3>
                         </div>
                         <div id="skillsContainer" class="flex flex-wrap gap-2 mb-6 min-h-[80px] p-4 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
                             ${renderSkills(currentSkills)}
                         </div>
                         <div class="flex gap-2">
                             <input type="text" id="skillInput" placeholder="e.g. Python, Figma..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
-                            <button id="addSkillBtn" class="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-primary/10">Add</button>
+                            <button id="addSkillBtn" class="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-primary/10" data-i18n="profile.add_skill">${i18next.t('profile.add_skill')}</button>
                         </div>
                     </section>
 
@@ -110,16 +116,16 @@ function renderMainLayout(container) {
                                 <div class="size-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center">
                                     <span class="material-symbols-outlined text-xl">explore</span>
                                 </div>
-                                <h3 class="font-bold text-slate-900 text-lg">Career Path</h3>
+                                <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.career_path">${i18next.t('profile.career_path')}</h3>
                             </div>
                             <div class="space-y-6">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Target Roles</label>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.target_roles">${i18next.t('profile.target_roles')}</label>
                                     <input type="text" id="targetRolesInput" value="${profile?.target_roles?.join(', ') || ''}" placeholder="Frontend Engineer, UI Designer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
                                     <p class="text-[10px] text-slate-400 mt-2 italic font-medium">Separate multiple roles with commas.</p>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Sector Preference</label>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.sector_pref">${i18next.t('profile.sector_pref')}</label>
                                     <div class="relative">
                                         <select id="sectorSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer font-medium">
                                             <option value="SaaS & Cloud Computing" ${profile?.sector_preference === 'SaaS & Cloud Computing' ? 'selected' : ''}>SaaS & Cloud Computing</option>
@@ -139,12 +145,12 @@ function renderMainLayout(container) {
                                 <div class="size-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
                                     <span class="material-symbols-outlined text-xl">work_history</span>
                                 </div>
-                                <h3 class="font-bold text-slate-900 text-lg">Work Preferences</h3>
+                                <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.work_pref">${i18next.t('profile.work_pref')}</h3>
                             </div>
                             <div class="grid grid-cols-1 gap-3">
-                                ${renderWorkPreference('remote', 'Remote', 'Work from anywhere', profile?.location_preference)}
-                                ${renderWorkPreference('hybrid', 'Hybrid', 'Mix of office and home', profile?.location_preference)}
-                                ${renderWorkPreference('onsite', 'On-site', 'Office-based role', profile?.location_preference)}
+                                ${renderWorkPreference('remote', i18next.t('profile.remote'), i18next.t('profile.remote_desc'), profile?.location_preference, 'profile.remote', 'profile.remote_desc')}
+                                ${renderWorkPreference('hybrid', i18next.t('profile.hybrid'), i18next.t('profile.hybrid_desc'), profile?.location_preference, 'profile.hybrid', 'profile.hybrid_desc')}
+                                ${renderWorkPreference('onsite', i18next.t('profile.onsite'), i18next.t('profile.onsite_desc'), profile?.location_preference, 'profile.onsite', 'profile.onsite_desc')}
                             </div>
                         </section>
                     </div>
@@ -155,7 +161,7 @@ function renderMainLayout(container) {
                             <div class="size-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
                                 <span class="material-symbols-outlined text-xl">link</span>
                             </div>
-                            <h3 class="font-bold text-slate-900 text-lg">Professional Links</h3>
+                            <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.professional_links">${i18next.t('profile.professional_links')}</h3>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
@@ -179,10 +185,12 @@ function renderMainLayout(container) {
 
                 <!-- Action Footer -->
                 <div class="mt-12 flex justify-end items-center gap-6 entrance-section">
-                    <button id="discardBtn" class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest">Discard Changes</button>
+                    <button id="discardBtn" class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest" data-i18n="profile.discard_changes">
+                        ${i18next.t('profile.discard_changes')}
+                    </button>
                     <button id="saveProfileBtn" class="bg-primary text-white px-10 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-slate-900 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">save</span>
-                        <span>Save Profile</span>
+                        <span data-i18n="profile.save_profile">${i18next.t('profile.save_profile')}</span>
                     </button>
                 </div>
             </main>
@@ -342,7 +350,7 @@ function renderMainLayout(container) {
 }
 
 function renderSkills(skills) {
-    if (skills.length === 0) return '<p class="text-xs text-slate-400 italic">No skills added yet.</p>';
+    if (skills.length === 0) return `<p class="text-xs text-slate-400 italic" data-i18n="profile.no_skills">${i18next.t('profile.no_skills', 'No skills added yet.')}</p>`;
     return skills.map(skill => `
         <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 animate-in fade-in zoom-in duration-300">
             ${skill}
@@ -353,15 +361,15 @@ function renderSkills(skills) {
     `).join('');
 }
 
-function renderWorkPreference(value, label, subtext, current) {
+function renderWorkPreference(value, label, subtext, current, labelKey, subtextKey) {
     const isChecked = current === value;
     return `
         <label class="flex flex-col p-4 border ${isChecked ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-slate-200 bg-slate-50'} rounded-xl cursor-pointer transition-all hover:border-primary/50 group">
             <div class="flex items-start justify-between mb-2">
-                <span class="font-bold text-sm text-slate-900">${label}</span>
+                <span class="font-bold text-sm text-slate-900" data-i18n="${labelKey}">${label}</span>
                 <input type="radio" name="work_pref" value="${value}" ${isChecked ? 'checked' : ''} class="accent-primary size-4 cursor-pointer">
             </div>
-            <p class="text-[10px] text-slate-500 leading-relaxed">${subtext}</p>
+            <p class="text-[10px] text-slate-500 leading-relaxed" data-i18n="${subtextKey}">${subtext}</p>
         </label>
     `;
 }

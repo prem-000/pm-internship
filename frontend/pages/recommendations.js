@@ -23,66 +23,64 @@ function renderMainLayout(container) {
     container.innerHTML = `
 <div class="flex flex-col lg:flex-row min-h-screen overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
 <!-- Mobile Top Bar -->
-${renderTopBar('MATCHES')}
+${renderTopBar(i18next.t('nav.internships'))}
 <!-- SideNavBar -->
 ${renderSidebar('#/recommendations')}
 <!-- Main Content -->
-<main class="flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-72 ml-0 pb-24 lg:pb-0">
-<!-- Header -->
-<header class="h-16 border-b border-primary/10 bg-white dark:bg-background-dark flex items-center justify-between px-8 shrink-0">
-<div class="flex items-center gap-6 flex-1">
-<h2 class="text-xl font-bold text-primary dark:text-slate-100 whitespace-nowrap">Full Recommendations</h2>
+            <main class="flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-72 ml-0 pb-24 lg:pb-0">
+                <!-- Header -->
+                <header class="h-16 border-b border-primary/10 bg-white dark:bg-background-dark flex items-center justify-between px-8 shrink-0">
+                    <div class="flex items-center gap-6 flex-1">
+                        <h2 class="text-xl font-bold text-primary dark:text-slate-100 whitespace-nowrap" data-i18n="recs.title">${i18next.t('recs.title')}</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3 pl-4 border-l border-primary/10">
+                            <div class="text-right hidden sm:block">
+                                <p class="text-xs font-bold text-slate-900 dark:text-slate-100">${profile?.full_name || user?.name || 'User'}</p>
+                                <p class="text-[10px] text-slate-500 font-medium">${profile?.target_roles?.[0] || 'Intern'}</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary dark:text-primary-100">account_circle</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <!-- Filters Bar -->
+                <div class="bg-white dark:bg-background-dark border-b border-primary/10 px-8 py-4 shrink-0">
+                    <div class="flex flex-wrap items-center gap-6">
+                        <!-- Dropdown: Location -->
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1" data-i18n="recs.location">${i18next.t('recs.location')}</span>
+                            <div class="relative">
+                                <select id="locationFilter" class="appearance-none flex items-center justify-between min-w-[140px] px-3 py-2 bg-primary/5 dark:bg-primary/10 rounded-lg text-sm font-medium border-none focus:ring-0 cursor-pointer">
+                                    <option value="remote" ${filters.location === 'remote' ? 'selected' : ''} data-i18n="recs.remote">${i18next.t('recs.remote')}</option>
+                                    <option value="onsite" ${filters.location === 'onsite' ? 'selected' : ''} data-i18n="recs.onsite">${i18next.t('recs.onsite')}</option>
+                                    <option value="hybrid" ${filters.location === 'hybrid' ? 'selected' : ''} data-i18n="recs.hybrid">${i18next.t('recs.hybrid')}</option>
+                                    <option value="all" ${filters.location === 'all' ? 'selected' : ''} data-i18n="recs.all_locations">${i18next.t('recs.all_locations')}</option>
+                                </select>
+                                <span class="material-symbols-outlined text-sm absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
+                            </div>
+                        </div>
+                        <!-- Slider: Match Score -->
+                        <div class="flex flex-col gap-1 flex-1 max-w-xs">
+                            <div class="flex justify-between px-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" data-i18n="recs.score_range">${i18next.t('recs.score_range')}</span>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest" id="scoreValueDisplay">${filters.min_score}% - 100%</span>
+                            </div>
+                            <div class="relative h-2 bg-primary/10 rounded-full mt-3 flex items-center">
+                                <input type="range" id="scoreSlider" min="0" max="100" value="${filters.min_score}" class="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-10 accent-primary">
+                                <div id="scoreBar" class="absolute left-0 h-full bg-primary rounded-full" style="width: ${filters.min_score}%; left: 0;"></div>
+                            </div>
+                        </div>
 
-</div>
-<div class="flex items-center gap-4">
-
-<div class="flex items-center gap-3 pl-4 border-l border-primary/10">
-<div class="text-right hidden sm:block">
-<p class="text-xs font-bold text-slate-900 dark:text-slate-100">${profile?.full_name || user?.name || 'User'}</p>
-<p class="text-[10px] text-slate-500 font-medium">${profile?.target_roles?.[0] || 'Intern'}</p>
-</div>
-<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-<span class="material-symbols-outlined text-primary dark:text-primary-100">account_circle</span>
-</div>
-</div>
-</div>
-</header>
-<!-- Filters Bar -->
-<div class="bg-white dark:bg-background-dark border-b border-primary/10 px-8 py-4 shrink-0">
-<div class="flex flex-wrap items-center gap-6">
-<!-- Dropdown: Location -->
-<div class="flex flex-col gap-1">
-    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Location</span>
-    <div class="relative">
-        <select id="locationFilter" class="appearance-none flex items-center justify-between min-w-[140px] px-3 py-2 bg-primary/5 dark:bg-primary/10 rounded-lg text-sm font-medium border-none focus:ring-0 cursor-pointer">
-            <option value="remote" ${filters.location === 'remote' ? 'selected' : ''}>Remote</option>
-            <option value="onsite" ${filters.location === 'onsite' ? 'selected' : ''}>On-site</option>
-            <option value="hybrid" ${filters.location === 'hybrid' ? 'selected' : ''}>Hybrid</option>
-            <option value="all" ${filters.location === 'all' ? 'selected' : ''}>All Locations</option>
-        </select>
-        <span class="material-symbols-outlined text-sm absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
-    </div>
-</div>
-<!-- Slider: Match Score -->
-<div class="flex flex-col gap-1 flex-1 max-w-xs">
-<div class="flex justify-between px-1">
-<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Match Score Range</span>
-<span class="text-[10px] font-bold text-primary uppercase tracking-widest" id="scoreValueDisplay">${filters.min_score}% - 100%</span>
-</div>
-<div class="relative h-2 bg-primary/10 rounded-full mt-3 flex items-center">
-    <input type="range" id="scoreSlider" min="0" max="100" value="${filters.min_score}" class="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-10 accent-primary">
-    <div id="scoreBar" class="absolute left-0 h-full bg-primary rounded-full" style="width: ${filters.min_score}%; left: 0;"></div>
-</div>
-</div>
-
-</div>
-</div>
-<!-- Main Scrollable Grid -->
-<div class="flex-1 overflow-y-auto p-8" id="recommendationsGrid">
-    ${renderGrid(recommendations)}
-</div>
-</main>
-</div>
+                    </div>
+                </div>
+                <!-- Main Scrollable Grid -->
+                <div class="flex-1 overflow-y-auto p-8" id="recommendationsGrid">
+                    ${renderGrid(recommendations)}
+                </div>
+            </main>
+        </div>
     `;
 
     setupEventListeners(container);
@@ -94,7 +92,8 @@ function renderGrid(recommendations) {
         return `
             <div class="flex flex-col items-center justify-center py-20 opacity-0 entrance-animation">
                 <span class="material-symbols-outlined text-6xl text-slate-200 mb-4">search_off</span>
-                <p class="text-slate-500 font-medium">No recommendations found. Try adjusting your filters.</p>
+                <p class="text-slate-500 font-medium" data-i18n="recs.no_results">${i18next.t('recs.no_results')}</p>
+                <p class="text-xs text-slate-400 mt-1" data-i18n="recs.adjust_filters">${i18next.t('recs.adjust_filters')}</p>
             </div>
         `;
     }
@@ -130,32 +129,32 @@ function renderCard(rec, index) {
 <div class="w-12 h-12 rounded-full border-4 ${colorClass.split(' ')[0]} flex items-center justify-center ${colorClass.split(' ')[1]} font-bold text-sm">
                                     ${score}
                                 </div>
-<span class="text-[10px] font-bold text-slate-400 mt-1">MATCH</span>
+<span class="text-[10px] font-bold text-slate-400 mt-1" data-i18n="recs.match_label">${i18next.t('recs.match_label', 'MATCH')}</span>
 </div>
 </div>
 <div class="grid grid-cols-3 gap-2 py-3 border-y border-primary/5">
 <div class="flex flex-col items-center text-center">
 <p class="text-xs font-bold text-slate-900 dark:text-slate-100">${skillMatch}%</p>
-<p class="text-[10px] text-slate-500">Skill Match</p>
+<p class="text-[10px] text-slate-500" data-i18n="recs.skill_match">${i18next.t('recs.skill_match')}</p>
 </div>
 <div class="flex flex-col items-center text-center border-x border-primary/5">
 <p class="text-xs font-bold text-slate-900 dark:text-slate-100">${semanticFit}%</p>
-<p class="text-[10px] text-slate-500">Semantic Fit</p>
+<p class="text-[10px] text-slate-500" data-i18n="recs.semantic_fit">${i18next.t('recs.semantic_fit')}</p>
 </div>
 <div class="flex flex-col items-center text-center">
 <p class="text-xs font-bold ${behaviorBoost >= 0 ? 'text-emerald-500' : 'text-rose-500'}">${behaviorBoost >= 0 ? '+' : ''}${behaviorBoost}%</p>
-<p class="text-[10px] text-slate-500">Behavior</p>
+<p class="text-[10px] text-slate-500" data-i18n="recs.behavior">${i18next.t('recs.behavior')}</p>
 </div>
 </div>
 <div class="flex flex-col gap-3">
-<button data-action="applied" data-id="${rec.internship_id}" data-url="${rec.apply_url}" class="action-btn w-full py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-colors">Apply Now</button>
+<button data-action="applied" data-id="${rec.internship_id}" data-url="${rec.apply_url}" class="action-btn w-full py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-colors" data-i18n="recs.apply_now">${i18next.t('recs.apply_now')}</button>
 <div class="grid grid-cols-2 gap-3">
 <a href="#/roadmap/${rec.internship_id}" class="py-2.5 bg-primary/5 dark:bg-primary/20 text-primary dark:text-slate-200 text-xs font-bold rounded-lg hover:bg-primary/10 transition-colors flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-sm">route</span> Roadmap
-                                </a>
+<span class="material-symbols-outlined text-sm">route</span> <span data-i18n="recs.roadmap">${i18next.t('recs.roadmap')}</span>
+                                 </a>
 <button data-action="saved" data-id="${rec.internship_id}" class="action-btn py-2.5 border border-primary/10 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-sm">bookmark</span> Save
-                                </button>
+<span class="material-symbols-outlined text-sm">bookmark</span> <span data-i18n="recs.save">${i18next.t('recs.save')}</span>
+                                 </button>
 </div>
 </div>
 </div>
@@ -208,9 +207,9 @@ function setupEventListeners(container) {
 
         const success = await recommendationsController.handleAction(id, action);
         if (success) {
-            toast.success(`Action '${action}' successful`);
+            toast.success(i18next.t(`recs.${action}_success`) || `Action '${action}' successful`);
             if (action === 'applied') {
-                btn.innerHTML = 'Applied ✓';
+                btn.innerHTML = `${i18next.t('recs.applied')} ✓`;
                 btn.classList.replace('bg-primary', 'bg-slate-800');
                 if (url && url !== '#') setTimeout(() => window.open(url, '_blank'), 500);
             } else {

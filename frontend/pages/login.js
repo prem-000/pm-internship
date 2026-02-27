@@ -18,14 +18,14 @@ export const renderLogin = (container) => {
                         <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                         </svg>
-                        <span class="text-xl font-bold tracking-tight text-gray-900">AIRE</span>
+                        <span class="text-xl font-bold tracking-tight text-gray-900" data-i18n="app_name">AIRE</span>
                     </div>
                 </div>
             </div>
             
             <div class="p-8">
-                <h2 class="text-3xl font-bold text-gray-900 mb-1">Welcome back</h2>
-                <p class="text-gray-500 mb-8 text-sm">Adaptive Internship Recommendation Engine</p>
+                <h2 class="text-3xl font-bold text-gray-900 mb-1" data-i18n="auth.login_title">${i18next.t('auth.login_title')}</h2>
+                <p class="text-gray-500 mb-8 text-sm" data-i18n="landing.hero_subtitle_tagline">${i18next.t('landing.hero_subtitle_tagline')}</p>
                 
                 <form id="loginForm" class="space-y-6">
                     <div>
@@ -33,7 +33,7 @@ export const renderLogin = (container) => {
                             <svg class="inline h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            Email Address
+                            <span data-i18n="auth.email_label">${i18next.t('auth.email_label')}</span>
                         </label>
                         <input 
                             type="email" 
@@ -50,7 +50,7 @@ export const renderLogin = (container) => {
                                 <svg class="inline h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
-                                Password
+                                <span data-i18n="auth.password_label">${i18next.t('auth.password_label')}</span>
                             </label>
                             <a href="#" class="text-xs font-medium text-indigo-600 hover:text-indigo-500 transition-colors">Forgot password?</a>
                         </div>
@@ -75,7 +75,7 @@ export const renderLogin = (container) => {
                         type="submit" 
                         class="w-full bg-slate-900 text-white font-semibold py-4 rounded-xl hover:bg-slate-800 transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95"
                     >
-                        <span>Sign In</span>
+                        <span data-i18n="auth.login_button">${i18next.t('auth.login_button')}</span>
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
@@ -85,8 +85,8 @@ export const renderLogin = (container) => {
             
             <div class="bg-gray-50 p-6 text-center border-t border-gray-100">
                 <p class="text-sm text-gray-600">
-                    New to the engine? 
-                    <a href="#/register" class="font-bold text-gray-900 hover:text-indigo-600 transition-colors">Create an account</a>
+                    <span data-i18n="auth.no_account">${i18next.t('auth.no_account')}</span>
+                    <a href="#/register" class="font-bold text-gray-900 hover:text-indigo-600 transition-colors" data-i18n="auth.register_link">${i18next.t('auth.register_link')}</a>
                 </p>
             </div>
     </div>

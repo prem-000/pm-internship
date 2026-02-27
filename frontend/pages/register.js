@@ -19,17 +19,17 @@ export const renderRegister = (container) => {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                 </svg>
             </div>
-            <h1 class="text-3xl font-extrabold text-gray-900">Join AIRE</h1>
-            <p class="text-gray-500 text-sm mt-1">Adaptive Internship Recommendation Engine</p>
+            <h1 class="text-3xl font-extrabold text-gray-900" data-i18n="app_name">AIRE</h1>
+            <p class="text-gray-500 text-sm mt-1" data-i18n="landing.hero_subtitle_tagline">${i18next.t('landing.hero_subtitle_tagline')}</p>
         </div>
 
         <div class="clean-card p-8 relative">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Create an account</h2>
-            <p class="text-gray-400 text-sm mb-8">Enter your details below to get started</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2" data-i18n="auth.register_title">${i18next.t('auth.register_title')}</h2>
+            <p class="text-gray-400 text-sm mb-8" data-i18n="auth.register_desc">Enter your details below to get started</p>
             
             <form id="registerForm" class="space-y-6">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-2" for="email">Email Address</label>
+                    <label class="block text-xs font-semibold text-gray-500 mb-2" for="email" data-i18n="auth.email_label">${i18next.t('auth.email_label')}</label>
                     <input 
                         type="email" 
                         id="email" 
@@ -41,7 +41,7 @@ export const renderRegister = (container) => {
                 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-2" for="password">Password</label>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2" for="password" data-i18n="auth.password_label">${i18next.t('auth.password_label')}</label>
                         <div class="relative">
                             <input 
                                 type="password" 
@@ -70,7 +70,7 @@ export const renderRegister = (container) => {
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-2" for="confirmPassword">Confirm Password</label>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2" for="confirmPassword" data-i18n="auth.confirm_password_label">${i18next.t('auth.confirm_password_label')}</label>
                         <div class="relative">
                             <input 
                                 type="password" 
@@ -93,14 +93,14 @@ export const renderRegister = (container) => {
                     type="submit" 
                     class="w-full bg-indigo-950 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition-all shadow-lg active:scale-95 flex items-center justify-center"
                 >
-                    Create Account
+                    <span data-i18n="auth.register_button">${i18next.t('auth.register_button')}</span>
                 </button>
             </form>
 
             <div class="mt-8 pt-6 border-t border-gray-100 text-center">
                 <p class="text-sm text-gray-500">
-                    Already have an account? 
-                    <a href="#/login" class="font-bold text-gray-900 hover:text-indigo-600 transition-colors">Back to Login</a>
+                    <span data-i18n="auth.have_account">${i18next.t('auth.have_account')}</span>
+                    <a href="#/login" class="font-bold text-gray-900 hover:text-indigo-600 transition-colors" data-i18n="auth.login_link">${i18next.t('auth.login_link')}</a>
                 </p>
             </div>
         </div>

@@ -86,7 +86,23 @@ async def get_gap_analysis(
     projected_total = round(projected_base + feedback_boost, 2)
 
     # 4. Gemini Roadmap
-    roadmap = await gemini_service.get_structured_roadmap(internship.get('title'), missing)
+    global_settings = db.global_settings.find_one({"_id": "global_settings"}) or {
+        "roadmap_language_mode": "match_user",
+        "admin_selected_language": "en"
+    }
+
+    roadmap_mode = global_settings.get("roadmap_language_mode", "match_user")
+    
+    if roadmap_mode == "match_user":
+        target_lang = current_user.get("preferred_language", "en")
+    elif roadmap_mode == "always_english":
+        target_lang = "en"
+    elif roadmap_mode == "admin_selected":
+        target_lang = global_settings.get("admin_selected_language", "en")
+    else:
+        target_lang = "en"
+
+    roadmap = await gemini_service.get_structured_roadmap(internship.get('title'), missing, language=target_lang)
 
     return {
         "internship": {

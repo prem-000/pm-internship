@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from ..database import get_database
-from ..models.schemas import ProfileUpdateRequest
+from ..models.schemas import ProfileUpdateRequest, LanguageUpdateRequest
 from ..utils.auth_deps import get_current_user
 from datetime import datetime
 
@@ -24,6 +24,7 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
         "target_roles": user.get("target_roles", [user.get("target_role")] if user.get("target_role") else []),
         "sector_preference": user.get("preferred_sector", ""),
         "location_preference": user.get("preferred_location", "remote"),
+        "preferred_language": user.get("preferred_language", "en"),
         "university": user.get("university"),
         "graduation_year": user.get("graduation_year"),
         "education": user.get("education"),
@@ -98,6 +99,7 @@ async def update_profile(
         "target_roles": user.get("target_roles", []),
         "sector_preference": user.get("preferred_sector", ""),
         "location_preference": user.get("preferred_location", "remote"),
+        "preferred_language": user.get("preferred_language", "en"),
         "linkedin_url": str(user.get("linkedin_url")) if user.get("linkedin_url") else None,
         "github_url": str(user.get("github_url")) if user.get("github_url") else None,
         "portfolio_url": str(user.get("portfolio_url")) if user.get("portfolio_url") else None,
@@ -109,3 +111,15 @@ async def update_profile(
         "message": "Profile updated successfully", 
         "profile": updated_profile
     }
+
+@router.put("/update-language")
+async def update_language(
+    lang_data: LanguageUpdateRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    db = get_database()
+    db.users.update_one(
+        {"email": current_user["email"]},
+        {"$set": {"preferred_language": lang_data.preferred_language, "updated_at": datetime.utcnow()}}
+    )
+    return {"message": "Language preference updated", "preferred_language": lang_data.preferred_language}
