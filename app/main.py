@@ -51,6 +51,7 @@ app.add_middleware(
         "http://localhost:5500",
         "http://127.0.0.1:5500",
         "https://pm-internship-u7yf.onrender.com",
+        "https://pm-internship.pages.dev",
     ],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
