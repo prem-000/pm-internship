@@ -14,8 +14,8 @@ const getBaseUrl = () => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8000/api';
     }
-    // Fallback to production
-    return 'https://pm-internship-u7yf.onrender.com/api';
+    // Fallback to production (using Vercel proxy)
+    return '/api';
 };
 
 const BASE_URL = getBaseUrl();
