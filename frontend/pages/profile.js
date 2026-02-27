@@ -274,8 +274,9 @@ function renderMainLayout(container) {
         renderProfile(container);
     };
 
-    // URL Validation
+    // URL Validation (Optional - allows empty/null)
     const isValidUrl = (url) => {
+        if (!url || url.trim() === "") return true;
         try {
             const parsed = new URL(url);
             return parsed.protocol === "http:" || parsed.protocol === "https:";

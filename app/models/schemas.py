@@ -25,9 +25,9 @@ class ProfileUpdateRequest(BaseModel):
     preferred_location: Optional[str] = None
     target_roles: Optional[List[str]] = None
     bio: Optional[str] = None
-    linkedin_url: Optional[HttpUrl] = None
-    github_url: Optional[HttpUrl] = None
-    portfolio_url: Optional[HttpUrl] = None
+    linkedin_url: Optional[str] = None
+    github_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
 
 class AdminLogin(BaseModel):
     email: EmailStr

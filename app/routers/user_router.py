@@ -61,10 +61,14 @@ async def update_profile(
         for k, v in profile_update.dict(exclude_unset=True).items()
     }
     
-    # Extra processing for URLs to ensure they are strings in JSON
+    # Extra processing for URLs to ensure they are strings and handle empty values
     for url_field in ["linkedin_url", "github_url", "portfolio_url"]:
-        if url_field in update_data and update_data[url_field]:
-            update_data[url_field] = str(update_data[url_field])
+        if url_field in update_data:
+            val = update_data[url_field]
+            if val is None or (isinstance(val, str) and val.strip() == ""):
+                update_data[url_field] = None
+            else:
+                update_data[url_field] = str(val)
 
     # Recommender compatibility: Sync target_role if target_roles is updated
     if "target_roles" in update_data and update_data["target_roles"]:
