@@ -9,6 +9,7 @@
         "register": "रजिस्टर",
         "logout": "साइन आउट",
         "settings": "सेटिंग्स",
+        "analytics": "एनालिटिक्स",
         "language": "भाषा",
         "system_status": "सिस्टम की स्थिति",
         "engine_status": "इंजन सिंक्रोनाइज्ड"
@@ -169,5 +170,16 @@
         "confirm_clear_btn": "हटाने की पुष्टि करें",
         "resetting": "रीसेट हो रहा है...",
         "clearing": "साफ़ हो रहा है..."
+    },
+    "analytics": {
+        "title": "एनालिटिक्स अवलोकन",
+        "subtitle": "आपकी बाज़ार स्थिति और कौशल प्राप्ति वेग में गहरी जानकारी।",
+        "match_trend": "मैच स्कोर ट्रेंड",
+        "vs_prev": "पिछले के मुकाबले",
+        "sector_distribution": "क्षेत्र वितरण",
+        "behavioral_heatmap": "व्यवहारिक हीटमैप",
+        "applied": "लागू",
+        "viewed": "देखा गया",
+        "match": "मिलान"
     }
 }

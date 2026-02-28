@@ -7,6 +7,7 @@ export const renderSidebar = (currentPath) => {
         { path: '#/profile', label: i18next.t('nav.profile'), key: 'nav.profile', icon: 'person' },
         { path: '#/recommendations', label: i18next.t('nav.internships'), key: 'nav.internships', icon: 'auto_awesome' },
         { path: '#/roadmap', label: i18next.t('nav.roadmap'), key: 'nav.roadmap', icon: 'route' },
+        { path: '#/analytics', label: i18next.t('nav.analytics'), key: 'nav.analytics', icon: 'analytics' },
         { path: '#/settings', label: i18next.t('nav.settings'), key: 'nav.settings', icon: 'settings' }
     ];
 

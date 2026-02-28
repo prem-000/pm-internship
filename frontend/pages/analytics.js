@@ -69,8 +69,8 @@ function renderMainLayout(container) {
             <main class="flex-1 lg:ml-72 ml-0 p-4 md:p-8 pb-24 lg:pb-8">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10">
             <div>
-                <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Analytics Overview</h2>
-                <p class="text-slate-500 mt-1">Deep insights into your market positioning and skill acquisition velocity.</p>
+                <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight" data-i18n="analytics.title">${i18next.t('analytics.title', 'Analytics Overview')}</h2>
+                <p class="text-slate-500 mt-1" data-i18n="analytics.subtitle">${i18next.t('analytics.subtitle', 'Deep insights into your market positioning and skill acquisition velocity.')}</p>
             </div>
             <div class="flex gap-2">
             </div>
@@ -82,10 +82,10 @@ function renderMainLayout(container) {
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">trending_up</span>
-                        Match Score Trend
+                        <span data-i18n="analytics.match_trend">${i18next.t('analytics.match_trend', 'Match Score Trend')}</span>
                     </h3>
                     <span class="text-xs font-bold ${growth >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'} dark:bg-emerald-950/30 px-2 py-1 rounded">
-                        ${growth >= 0 ? '+' : ''}${growth}% vs prev. period
+                        ${growth >= 0 ? '+' : ''}${growth}% <span data-i18n="analytics.vs_prev">${i18next.t('analytics.vs_prev', 'vs prev. period')}</span>
                     </span>
                 </div>
                 <div class="h-[240px] w-full relative pt-4">
@@ -110,7 +110,7 @@ function renderMainLayout(container) {
                         `).join('')}
                     </svg>
                     <div class="flex justify-between mt-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest px-2">
-                        ${trend.map(t => `<span>${t.month}</span>`).join('')}
+                        <!-- Removed months per request -->
                     </div>
                 </div>
             </div>
@@ -119,7 +119,7 @@ function renderMainLayout(container) {
             <div class="col-span-12 lg:col-span-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
                 <h3 class="font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">pie_chart</span>
-                    Sector Distribution
+                    <span data-i18n="analytics.sector_distribution">${i18next.t('analytics.sector_distribution', 'Sector Distribution')}</span>
                 </h3>
                 <div class="flex flex-col items-center justify-center py-4">
                     <div class="relative size-40">
@@ -129,7 +129,7 @@ function renderMainLayout(container) {
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                             <span class="text-2xl font-black text-primary dark:text-white">${donutMatch}%</span>
-                            <span class="text-[9px] font-bold text-slate-400 uppercase">Match</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase" data-i18n="analytics.match">${i18next.t('analytics.match', 'Match')}</span>
                         </div>
                     </div>
                     <div class="mt-8 space-y-2 w-full">
@@ -151,11 +151,11 @@ function renderMainLayout(container) {
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">bar_chart</span>
-                        Behavioral Heatmap
+                        <span data-i18n="analytics.behavioral_heatmap">${i18next.t('analytics.behavioral_heatmap', 'Behavioral Heatmap')}</span>
                     </h3>
                     <div class="flex gap-4 text-xs font-bold">
-                        <div class="flex items-center gap-1"><div class="size-2 rounded-full bg-primary"></div>Applied</div>
-                        <div class="flex items-center gap-1"><div class="size-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>Viewed</div>
+                        <div class="flex items-center gap-1"><div class="size-2 rounded-full bg-primary"></div><span data-i18n="analytics.applied">${i18next.t('analytics.applied', 'Applied')}</span></div>
+                        <div class="flex items-center gap-1"><div class="size-2 rounded-full bg-slate-200 dark:bg-slate-700"></div><span data-i18n="analytics.viewed">${i18next.t('analytics.viewed', 'Viewed')}</span></div>
                     </div>
                 </div>
                 <div class="space-y-6">
@@ -166,7 +166,7 @@ function renderMainLayout(container) {
                         <div class="space-y-2">
                             <div class="flex justify-between text-xs font-bold text-slate-500 uppercase">
                                 <span>${h.sector}</span>
-                                <span>${h.applied} applied / ${h.viewed} viewed</span>
+                                <span>${h.applied} ${i18next.t('analytics.applied', 'applied').toLowerCase()} / ${h.viewed} ${i18next.t('analytics.viewed', 'viewed').toLowerCase()}</span>
                             </div>
                             <div class="flex h-6 gap-1">
                                 <div class="bg-primary rounded-l-md h-full transition-all duration-1000" style="width: 0%" data-target-width="${appliedP}%"></div>
@@ -200,6 +200,11 @@ function triggerAnimations(container) {
     setTimeout(() => {
         container.querySelectorAll('.chart-point').forEach((group, i) => {
             setTimeout(() => group.classList.replace('opacity-0', 'opacity-100'), i * 100);
+        });
+
+        // Animate heatmap bars
+        container.querySelectorAll('[data-target-width]').forEach((el) => {
+            el.style.width = el.getAttribute('data-target-width');
         });
     }, 600);
 }

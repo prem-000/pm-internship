@@ -9,6 +9,7 @@
         "register": "Register",
         "logout": "Sign Out",
         "settings": "Settings",
+        "analytics": "Analytics",
         "language": "Language",
         "system_status": "System Status",
         "engine_status": "Engine Synchronized"
@@ -169,5 +170,16 @@
         "confirm_clear_btn": "Confirm Deletion",
         "resetting": "Resetting...",
         "clearing": "Clearing..."
+    },
+    "analytics": {
+        "title": "Analytics Overview",
+        "subtitle": "Deep insights into your market positioning and skill acquisition velocity.",
+        "match_trend": "Match Score Trend",
+        "vs_prev": "vs prev. period",
+        "sector_distribution": "Sector Distribution",
+        "behavioral_heatmap": "Behavioral Heatmap",
+        "applied": "Applied",
+        "viewed": "Viewed",
+        "match": "Match"
     }
 }

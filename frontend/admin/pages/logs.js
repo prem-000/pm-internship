@@ -58,8 +58,8 @@ export const renderLogs = async (container) => {
 
     const connectWS = () => {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/api/admin/ws/logs`;
-        ws = new WebSocket(wsUrl);
+        const host = window.location.hostname === 'localhost' ? 'localhost:8000' : 'pm-internship-u7yf.onrender.com';
+        ws = new WebSocket(`${protocol}//${host}/api/admin/ws/logs`);
 
         ws.onmessage = (event) => {
             if (isPaused) return;
