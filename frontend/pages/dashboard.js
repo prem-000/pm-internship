@@ -124,27 +124,63 @@ function renderMainLayout(container) {
                     </div>
 
                     <!-- Semantic Alignment Radar -->
-                    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6" data-i18n="dashboard.semantic_alignment">${i18next.t('dashboard.semantic_alignment')}</h4>
-                        <div class="relative aspect-square flex items-center justify-center">
-                            <div class="absolute inset-0 border border-slate-100 rounded-full"></div>
-                            <div class="absolute inset-4 border border-slate-100 rounded-full"></div>
-                            <div class="absolute inset-8 border border-slate-100 rounded-full"></div>
-                            <div class="absolute w-[1px] h-full bg-slate-100"></div>
-                            <div class="absolute w-full h-[1px] bg-slate-100"></div>
-                            <!-- Simulated Radar Shape -->
-                            <div class="absolute w-[70%] h-[80%] bg-primary/20 border border-primary rounded-[40%_60%_70%_30%] rotate-45 flex items-center justify-center transition-all duration-1000 scale-0" id="radarShape" style="scale: 0">
-                                <div class="size-2 bg-primary rounded-full"></div>
-                            </div>
-                            <!-- Labels -->
-                            <span class="absolute -top-1 text-[8px] font-bold text-slate-400 uppercase">Skill Density</span>
-                            <span class="absolute -bottom-1 text-[8px] font-bold text-slate-400 uppercase">Role Clarity</span>
-                            <span class="absolute -right-4 text-[8px] font-bold text-slate-400 uppercase rotate-90">Sector</span>
-                            <span class="absolute -left-4 text-[8px] font-bold text-slate-400 uppercase -rotate-90">Vocabulary</span>
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm overflow-hidden relative group hover:border-primary/30 transition-all duration-500">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest" data-i18n="dashboard.semantic_alignment">${i18next.t('dashboard.semantic_alignment')}</h4>
+                            <div class="bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5 rounded-full border border-primary/20">LIVE_ANALYSIS</div>
                         </div>
-                        <p class="text-[10px] text-center text-slate-400 mt-6 leading-relaxed" data-i18n="dashboard.vocabulary_match" data-i18n-options='{"percent": "${semanticAlignment}", "role": "${user?.target_role || "Target"}"}'>
-                            ${i18next.t('dashboard.vocabulary_match', { percent: semanticAlignment, role: user?.target_role || 'Target' })}
-                        </p>
+                        
+                        <div class="relative aspect-square flex items-center justify-center max-w-[200px] mx-auto">
+                            <!-- Background Grid -->
+                            <div class="absolute inset-0 border border-slate-100 rounded-full"></div>
+                            <div class="absolute inset-[15%] border border-slate-100 rounded-full"></div>
+                            <div class="absolute inset-[30%] border border-slate-100 rounded-full"></div>
+                            <div class="absolute inset-[45%] border border-slate-50 rounded-full"></div>
+                            
+                            <!-- Cross Axes -->
+                            <div class="absolute w-[0.5px] h-full bg-slate-100"></div>
+                            <div class="absolute w-full h-[0.5px] bg-slate-100"></div>
+                            
+                            <!-- Pulsing Waves -->
+                            <div class="absolute inset-0 bg-primary/5 rounded-full animate-ping opacity-20" style="animation-duration: 4s"></div>
+                            <div class="absolute inset-0 bg-primary/5 rounded-full animate-ping opacity-10" style="animation-duration: 6s; animation-delay: 2s"></div>
+
+                            <!-- REAL Radar Shape (Dynamic based on score) -->
+                            <div class="absolute bg-primary/20 border-2 border-primary/40 backdrop-blur-[1px] shadow-sm transition-all duration-1000 ease-out opacity-0" 
+                                id="radarShape" 
+                                style="width: 0%; height: 0%; border-radius: 43% 57% 53% 47% / 46% 41% 59% 54%; transform: rotate(15deg);">
+                                
+                                <!-- Core Dot with Glow -->
+                                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                    <div class="size-3 bg-primary rounded-full shadow-[0_0_15px_rgba(30,27,75,0.5)] flex items-center justify-center relative z-10">
+                                        <div class="size-1 bg-white rounded-full animate-pulse"></div>
+                                    </div>
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-8 bg-primary/20 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+
+                            <!-- Axis Labels -->
+                            <div class="absolute -top-1 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                                <span class="text-[8px] font-black text-slate-400 p-1 bg-white/80 rounded uppercase tracking-tighter">Skill Density</span>
+                            </div>
+                            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                                <span class="text-[8px] font-black text-slate-400 p-1 bg-white/80 rounded uppercase tracking-tighter">Role Clarity</span>
+                            </div>
+                            <div class="absolute top-1/2 -right-4 -translate-y-1/2 rotate-90">
+                                <span class="text-[8px] font-black text-slate-400 p-1 bg-white/80 rounded uppercase tracking-tighter">Sector Fit</span>
+                            </div>
+                            <div class="absolute top-1/2 -left-4 -translate-y-1/2 -rotate-90">
+                                <span class="text-[8px] font-black text-slate-400 p-1 bg-white/80 rounded uppercase tracking-tighter">Vocabulary</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-50">
+                            <p class="text-[10px] text-center text-slate-400 font-medium leading-relaxed" 
+                                data-i18n="dashboard.vocabulary_match" 
+                                data-i18n-options='{"percent": "${semanticAlignment}", "role": "${user?.target_role || "Target"}"}'>
+                                ${i18next.t('dashboard.vocabulary_match', { percent: semanticAlignment, role: user?.target_role || 'Target' })}
+                            </p>
+                        </div>
                     </div>
                 </aside>
             </main>
@@ -383,8 +419,11 @@ function triggerEntranceAnimations(container) {
     setTimeout(() => {
         const radar = container.querySelector('#radarShape');
         if (radar) {
-            radar.style.scale = '1';
+            const score = store.semanticAlignment || 88;
+            radar.style.width = `${score}%`;
+            radar.style.height = `${score}%`;
+            radar.style.opacity = '1';
         }
-    }, 1000);
+    }, 1200);
 }
 

@@ -114,16 +114,24 @@ async def get_activity_feed(limit: int = 10):
     return activities[:limit]
 
 @router.get("/users", dependencies=[Depends(verify_admin)])
-async def list_users(page: int = 1, search: str = ""):
+async def list_users(page: int = 1, search: str = "", status: str = "all"):
     db = get_database()
     query = {}
+    
+    # 1. Search Query
     if search:
-        query = {"$or": [
+        query["$or"] = [
             {"email": {"$regex": search, "$options": "i"}},
             {"full_name": {"$regex": search, "$options": "i"}}
-        ]}
+        ]
     
-    users = list(db.users.find(query, {"password": 0}).skip((page-1)*10).limit(10))
+    # 2. Status Filter
+    if status == "flagged":
+        query["is_blocked"] = True
+    elif status == "operational":
+        query["is_blocked"] = {"$ne": True} # Use $ne to handle cases where field might be missing
+    
+    users = list(db.users.find(query, {"password": 0}).sort("created_at", -1).skip((page-1)*50).limit(50))
     for u in users:
         u["_id"] = str(u["_id"])
     return users

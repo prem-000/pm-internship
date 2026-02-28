@@ -7,11 +7,16 @@ genai.configure(api_key=settings.GOOGLE_API_KEY)
 
 class GeminiService:
     def __init__(self):
-        # Try primary model, with fallback model defined
+        # Use latest available models
         try:
-            self.model = genai.GenerativeModel("gemini-1.5-flash")
-        except Exception:
-            self.model = genai.GenerativeModel("gemini-1.5-pro")
+            self.model = genai.GenerativeModel("gemini-flash-latest")
+        except Exception as e:
+            print(f"GeminiService: Flash initialization failed: {e}")
+            try:
+                self.model = genai.GenerativeModel("gemini-pro-latest")
+            except Exception as e2:
+                print(f"GeminiService: Pro initialization failed: {e2}")
+                self.model = None
 
     def _generate_rule_based_roadmap(self, missing_skills: list) -> str:
         """Professional rule-based fallback when AI fails."""
@@ -98,10 +103,23 @@ class GeminiService:
                 ],
                 "strategy_highlight": "Focus on skill acquisition and practical implementation."
             }
-        except Exception:
+        except Exception as e:
+            print(f"GeminiService: Structured Roadmap Generation failed: {e}")
+            skills_names = missing_skills[:3] if missing_skills else ["core competencies"]
             return {
-                "phases": [{"title": "Learning Path", "duration": "Week 1-2", "items": ["Study documentation", "Build projects"] }],
-                "strategy_highlight": "Prioritize missing core competencies."
+                "phases": [
+                    { 
+                        "title": "Foundation & Skill Building", 
+                        "duration": "Week 1", 
+                        "items": [f"Learn fundamentals of {', '.join(skills_names)}", "Review best practices and documentation"] 
+                    },
+                    { 
+                        "title": "Implementation & Projects", 
+                        "duration": "Week 2", 
+                        "items": [f"Build a small project using {skills_names[0]}", "Integrate multiple skills into a showcase app"] 
+                    }
+                ],
+                "strategy_highlight": f"Focus on mastering {', '.join(skills_names)} through practical documentation and hands-on projects."
             }
 
     async def detect_profile_misuse(self, user_data: dict):

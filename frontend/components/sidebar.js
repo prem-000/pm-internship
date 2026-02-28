@@ -2,10 +2,6 @@
 import store from '../js/store.js';
 
 export const renderSidebar = (currentPath) => {
-    const { user, profile } = store;
-    const userName = profile?.full_name || user?.name || 'User';
-    const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-
     const menuItems = [
         { path: '#/dashboard', label: i18next.t('nav.dashboard'), key: 'nav.dashboard', icon: 'dashboard' },
         { path: '#/profile', label: i18next.t('nav.profile'), key: 'nav.profile', icon: 'person' },
@@ -38,7 +34,7 @@ export const renderSidebar = (currentPath) => {
     }).join('')}
             </nav>
 
-            <div class="px-8 py-4 bg-white/5 mx-4 rounded-xl space-y-2 mb-4">
+            <div class="px-8 py-4 bg-white/5 mx-4 rounded-xl space-y-2 mb-4 shrink-0">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1" data-i18n="nav.language">${i18next.t('nav.language')}</p>
                 <div class="flex items-center gap-3">
                     <button onclick="changeLanguage('en')" class="text-[10px] font-black hover:text-govSaffron transition-colors ${i18next.language === 'en' ? 'text-white' : 'text-slate-400'}">EN</button>
@@ -50,16 +46,6 @@ export const renderSidebar = (currentPath) => {
             </div>
 
             <div class="p-4 border-t border-white/5 shrink-0">
-                <div class="flex items-center gap-3 px-4 py-3 mb-2 bg-white/5 rounded-xl border border-white/5">
-                    <div class="size-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-black border border-white/20">
-                        ${userInitials}
-                    </div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs font-bold truncate">${userName}</p>
-                        <p class="text-[10px] text-slate-500 truncate">${user?.email || ''}</p>
-                    </div>
-                </div>
-
                 <button id="logoutBtn" class="flex items-center gap-4 px-4 py-3 text-slate-400 hover:text-white hover:bg-red-500/10 rounded-xl transition-all w-full group">
                     <span class="material-symbols-outlined text-[24px] group-hover:rotate-12 transition-transform">logout</span>
                     <span class="font-semibold" data-i18n="nav.logout">${i18next.t('nav.logout')}</span>
