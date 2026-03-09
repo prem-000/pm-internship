@@ -18,7 +18,7 @@ const getBaseUrl = () => {
     }
 
     // Production backend (Render)
-    return 'https://pm-internship-u7yf.onrender.com/api';
+    return 'https://pm-internship-in3i.onrender.com/api';
 };
 
 const BASE_URL = getBaseUrl();
