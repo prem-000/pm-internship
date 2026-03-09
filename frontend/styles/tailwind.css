@@ -1,52 +1,123 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Base styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+}
 
 :root {
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
-    --success: #10b981;
-    --background-light: #f8fafc;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
+    --primary: #3B82F6;
+    --primary-dark: #2563EB;
+    --govNavy: #1E1B4B;
+    --govSaffron: #F97316;
+    --success: #10B981;
+    --background-light: #F8FAFC;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --border-color: #E2E8F0;
 }
 
-@layer base {
-    body {
-        @apply font-sans bg-background-light text-text-primary;
-        -webkit-font-smoothing: antialiased;
-    }
+/* Component Classes */
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+    cursor: pointer;
 }
 
-@layer components {
-    .btn-primary {
-        @apply bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2;
-    }
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
 
-    .btn-outline {
-        @apply border border-border-color hover:border-primary/50 text-text-secondary hover:text-primary px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2;
-    }
+.btn-primary:active {
+    transform: scale(0.95);
+}
 
-    .card {
-        @apply bg-white border border-border-color rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow;
-    }
+.btn-outline {
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    background-color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
 
-    .input-field {
-        @apply w-full bg-slate-50 border border-border-color rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium;
-    }
+.btn-outline:hover {
+    border-color: rgba(59, 130, 246, 0.5);
+    color: var(--primary);
+}
 
-    .label {
-        @apply block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2;
-    }
+.card {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s;
+}
 
-    .section-title {
-        @apply font-bold text-slate-900 text-lg;
-    }
+.card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
 
-    .entrance-animation {
-        @apply animate-in fade-in slide-in-from-bottom-5 duration-500 fill-mode-both;
-    }
+.input-field {
+    width: 100%;
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.input-field:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.label {
+    display: block;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 1.125rem;
+}
+
+.entrance-animation {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition: all 0.5s ease-out;
+}
+
+.entrance-animation.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Custom Scrollbar */
@@ -55,9 +126,14 @@
 }
 
 ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply bg-slate-200 rounded-full hover:bg-slate-300;
+    background: #e2e8f0;
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
 }
