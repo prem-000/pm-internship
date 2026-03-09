@@ -6,14 +6,26 @@ services:
     plan: free
     branch: main
 
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      export CARGO_HOME=/opt/render/project/.cargo
+      export RUSTUP_HOME=/opt/render/project/.rustup
+      mkdir -p $CARGO_HOME $RUSTUP_HOME
+      pip install --upgrade pip setuptools wheel
+      pip install -r requirements.txt
+      python -m spacy download en_core_web_sm
+      # Pre-download sentence transformer model to avoid runtime issues
+      python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
 
     healthCheckPath: /
 
     envVars:
       - key: PYTHON_VERSION
-        value: "3.10.13"
+        value: "3.11.0" # Upgraded to 3.11 for better 2026 compatibility
+      - key: CARGO_HOME
+        value: "/opt/render/project/.cargo"
+      - key: RUSTUP_HOME
+        value: "/opt/render/project/.rustup"
 
       # ── Set these SECRET values in Render Dashboard → Environment ──
       # MONGO_URI          → your MongoDB Atlas connection string

@@ -18,4 +18,6 @@ python-docx
 spacy
 spacy-transformers
 sentence-transformers
+transformers
+torch
 python-multipart
