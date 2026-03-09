@@ -7,6 +7,11 @@ class UserBase(BaseModel):
     role: str = "user"
     education: Optional[str] = None
     skills: List[str] = []
+    projects: List[str] = []
+    experience: List[str] = []
+    certifications: List[str] = []
+    resume_uploaded: bool = False
+    profile_completion: int = 0
     preferred_sector: Optional[str] = None
     preferred_location: Optional[str] = None
     target_role: Optional[str] = None
@@ -21,6 +26,9 @@ class ProfileUpdateRequest(BaseModel):
     university: Optional[str] = None
     graduation_year: Optional[int] = None
     skills: Optional[List[str]] = None
+    projects: Optional[List[str]] = None
+    experience: Optional[List[str]] = None
+    certifications: Optional[List[str]] = None
     preferred_sector: Optional[str] = None
     preferred_location: Optional[str] = None
     target_roles: Optional[List[str]] = None

@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --success: #10b981;
+    --background-light: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+}
+
+@layer base {
+    body {
+        @apply font-sans bg-background-light text-text-primary;
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2;
+    }
+
+    .btn-outline {
+        @apply border border-border-color hover:border-primary/50 text-text-secondary hover:text-primary px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2;
+    }
+
+    .card {
+        @apply bg-white border border-border-color rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    .input-field {
+        @apply w-full bg-slate-50 border border-border-color rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium;
+    }
+
+    .label {
+        @apply block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2;
+    }
+
+    .section-title {
+        @apply font-bold text-slate-900 text-lg;
+    }
+
+    .entrance-animation {
+        @apply animate-in fade-in slide-in-from-bottom-5 duration-500 fill-mode-both;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 rounded-full hover:bg-slate-300;
+}

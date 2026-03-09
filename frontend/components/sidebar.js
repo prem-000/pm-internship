@@ -12,7 +12,7 @@ export const renderSidebar = (currentPath) => {
     ];
 
     return `
-        <aside id="mainSidebar" class="w-72 bg-[#1e1b4b] text-white flex flex-col fixed h-full z-[60] transition-all duration-300 transform -translate-x-full lg:translate-x-0">
+        <aside id="mainSidebar" class="w-72 bg-slate-900 text-white flex flex-col fixed h-full z-[60] transition-all duration-300 transform -translate-x-full lg:translate-x-0">
             <div class="p-8 flex items-center gap-3 shrink-0">
                 <div class="size-10 rounded-xl bg-white/10 flex items-center justify-center">
                     <span class="material-symbols-outlined text-white">school</span>
@@ -27,7 +27,7 @@ export const renderSidebar = (currentPath) => {
                 ${menuItems.map(item => {
         const isActive = currentPath === item.path || (item.path === '#/roadmap' && currentPath.startsWith('#/roadmap/'));
         return `
-                        <a class="flex items-center gap-4 px-8 py-4 transition-all duration-200 group ${isActive ? 'bg-white/10 text-white border-r-4 border-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}" href="${item.path}">
+                        <a class="flex items-center gap-4 px-8 py-4 transition-all duration-200 group ${isActive ? 'bg-blue-600/10 text-blue-400 border-r-4 border-blue-500' : 'text-slate-400 hover:text-white hover:bg-white/5'}" href="${item.path}">
                             <span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">${item.icon}</span>
                             <span class="font-semibold" data-i18n="${item.key}">${item.label}</span>
                         </a>

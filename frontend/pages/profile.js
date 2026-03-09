@@ -1,216 +1,140 @@
 import store from '../js/store.js';
-import { profileController } from '../js/profile.controller.js';
+import { api } from '../services/api.js';
 import { toast } from '../components/toast.js';
 import { renderSidebar } from '../components/sidebar.js';
 import { renderTopBar } from '../components/mobileNav.js';
 
+// Components
+import { renderProfileHeader } from '../components/profileHeader.js';
+import { renderResumeDropzone } from '../components/resumeDropzone.js';
+import { renderResumeModal } from '../components/resumeModal.js';
+import { renderPersonalInfo } from '../components/personalInfo.js';
+import { renderSkillsManager, renderSkillsList } from '../components/skillsManager.js';
+import { renderPreferences } from '../components/preferences.js';
+import { renderLinksSection } from '../components/linksSection.js';
+
 export const renderProfile = async (container) => {
-    // Show loader
+    // Skeleton / Loader
     container.innerHTML = `
-        <div class="flex items-center justify-center min-h-screen bg-background-light">
-            <div class="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div class="flex items-center justify-center min-vh-100 bg-background-light">
+            <div class="flex flex-col items-center gap-10">
+                <div class="size-20 relative">
+                    <div class="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
+                    <div class="size-20 bg-primary rounded-full flex items-center justify-center relative z-10 shadow-2xl shadow-primary/30">
+                        <span class="material-symbols-outlined text-white text-5xl">bolt</span>
+                    </div>
+                </div>
+                <div class="text-center space-y-2">
+                    <h3 class="text-slate-900 font-black text-2xl tracking-tight uppercase tracking-[0.2em]">AIRE HUB</h3>
+                    <p class="text-slate-500 text-sm font-bold animate-pulse uppercase tracking-widest">Synchronizing Intelligence Framework...</p>
+                </div>
+            </div>
         </div>
     `;
 
-    await profileController.init();
-    renderMainLayout(container);
+    try {
+        const profileData = await api.get('/user/profile');
+        store.profile = profileData;
+        renderMainLayout(container, store.user, profileData);
+    } catch (err) {
+        toast.error("Failed to load profile data.");
+        console.error(err);
+    }
 };
 
-function renderMainLayout(container) {
-    const { user, profile } = store;
-
-    // Local state for skills (managed differently because it's a list)
+const renderMainLayout = (container, user, profile) => {
     let currentSkills = [...(profile?.skills || [])];
 
-    const lastUpdate = profile?.last_updated ? new Date(profile.last_updated).toLocaleDateString(i18next.language) : i18next.t('common.never', 'Never');
-
     container.innerHTML = `
-        <div class="flex flex-col lg:flex-row min-h-screen bg-background-light dark:bg-background-dark overflow-x-hidden">
-            <!-- Mobile Top Bar -->
-            ${renderTopBar(i18next.t('nav.profile'))}
-
-            <!-- Left Sidebar -->
+        <div class="flex flex-col lg:flex-row min-h-screen relative overflow-hidden bg-background-light font-display">
+            <!-- Sidebar Navigation -->
             ${renderSidebar('#/profile')}
 
-            <!-- Main Content -->
-            <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto lg:ml-72 ml-0 pb-24 lg:pb-8 w-full">
-                <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 entrance-section">
-                    <div>
-                        <h2 class="text-3xl font-black text-slate-900 leading-tight" data-i18n="profile.welcome_user" data-i18n-options='{"name": "${profile?.full_name || user?.name || "User"}"}'>
-                            ${i18next.t('profile.welcome_user', { name: profile?.full_name || user?.name || 'User' })}
-                        </h2>
-                        <p class="text-slate-500 mt-1 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-sm">schedule</span>
-                            <span data-i18n="profile.last_update" data-i18n-options='{"date": "${lastUpdate}"}'>
-                                ${i18next.t('profile.last_update', { date: lastUpdate })}
-                            </span>
-                        </p>
+            <!-- Main Content Area -->
+            <main class="flex-1 flex flex-col min-w-0 lg:ml-72 ml-0 pb-24 lg:pb-8">
+                <!-- Mobile Top Bar -->
+                ${renderTopBar(i18next.t('nav.profile'))}
+
+                <!-- Context Header -->
+                <header class="h-24 lg:h-28 border-b border-slate-200 bg-white/40 backdrop-blur-xl flex items-center justify-between px-10 sticky top-0 z-[60]">
+                    <div class="flex items-center gap-4">
+                        <div class="size-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
+                             <span class="material-symbols-outlined text-white text-2xl">grid_view</span>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Intelligence Workspace</h2>
                     </div>
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm min-w-[260px] relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-1 h-full bg-primary/20"></div>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest" data-i18n="profile.strength_label">${i18next.t('profile.strength_label')}</span>
-                            <span class="text-sm font-black text-primary" id="strengthValue">0%</span>
-                        </div>
-                        <div class="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
-                            <div id="strengthBar" class="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)] transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]" style="width: 0%"></div>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-2 font-medium" data-i18n="profile.complete_fields">${i18next.t('profile.complete_fields')}</p>
+                    <div class="flex items-center gap-6">
+                        <button id="discardChangesBtn" class="px-6 py-3 text-xs font-black text-slate-400 hover:text-slate-600 transition-all uppercase tracking-[0.2em]">
+                           Discard
+                        </button>
+                        <button id="saveAllChangesBtn" class="btn-primary px-10 py-5 text-xs font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/30">
+                            <span class="material-symbols-outlined text-xl">save</span>
+                            Save Intelligence
+                        </button>
                     </div>
                 </header>
 
-                <div class="space-y-8">
-                    <!-- Personal Information -->
-                    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm entrance-section">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="size-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
-                                <span class="material-symbols-outlined text-xl">person</span>
-                            </div>
-                            <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.personal_info">${i18next.t('profile.personal_info')}</h3>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.full_name">${i18next.t('profile.full_name')}</label>
-                                <input type="text" id="fullNameInput" value="${profile?.full_name || ''}" placeholder="John Doe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.education">${i18next.t('profile.education')}</label>
-                                <input type="text" id="educationInput" value="${profile?.education || ''}" placeholder="Bachelor of Science" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.university">${i18next.t('profile.university')}</label>
-                                <input type="text" id="universityInput" value="${profile?.university || ''}" placeholder="Stanford University" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.grad_year">${i18next.t('profile.grad_year')}</label>
-                                <input type="number" id="graduationYearInput" value="${profile?.graduation_year || ''}" placeholder="2025" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.bio">${i18next.t('profile.bio')}</label>
-                                <textarea id="bioInput" rows="3" placeholder="Tell us about yourself..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium resize-none">${profile?.bio || ''}</textarea>
-                            </div>
-                        </div>
-                    </section>
+                <!-- Scrollable Content -->
+                <div class="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-12 scrollbar-hide">
+                    <div class="max-w-[1400px] mx-auto">
+                        <div class="grid grid-cols-1 xl:grid-cols-12 gap-12">
+                            <!-- Left Column: Core Identity and AI Features (8 cols) -->
+                            <div class="xl:col-span-8 space-y-12">
+                                <div id="headerSection">
+                                    ${renderProfileHeader(user, profile)}
+                                </div>
 
-                    <!-- Skills Manager -->
-                    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm entrance-section">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="size-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
-                                <span class="material-symbols-outlined text-xl">psychology</span>
-                            </div>
-                            <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.skills_manager">${i18next.t('profile.skills_manager')}</h3>
-                        </div>
-                        <div id="skillsContainer" class="flex flex-wrap gap-2 mb-6 min-h-[80px] p-4 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
-                            ${renderSkills(currentSkills)}
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="skillInput" placeholder="e.g. Python, Figma..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
-                            <button id="addSkillBtn" class="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-primary/10" data-i18n="profile.add_skill">${i18next.t('profile.add_skill')}</button>
-                        </div>
-                    </section>
+                                <div id="resumeSection">
+                                    ${renderResumeDropzone()}
+                                </div>
 
-                    <!-- Career Path & Work Preferences -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm entrance-section">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="size-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-xl">explore</span>
+                                <div id="personalSection">
+                                    ${renderPersonalInfo(profile)}
                                 </div>
-                                <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.career_path">${i18next.t('profile.career_path')}</h3>
-                            </div>
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.target_roles">${i18next.t('profile.target_roles')}</label>
-                                    <input type="text" id="targetRolesInput" value="${profile?.target_roles?.join(', ') || ''}" placeholder="Frontend Engineer, UI Designer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium">
-                                    <p class="text-[10px] text-slate-400 mt-2 italic font-medium">Separate multiple roles with commas.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2" data-i18n="profile.sector_pref">${i18next.t('profile.sector_pref')}</label>
-                                    <div class="relative">
-                                        <select id="sectorSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer font-medium">
-                                            <option value="SaaS & Cloud Computing" ${profile?.sector_preference === 'SaaS & Cloud Computing' ? 'selected' : ''}>SaaS & Cloud Computing</option>
-                                            <option value="Fintech" ${profile?.sector_preference === 'Fintech' ? 'selected' : ''}>Fintech</option>
-                                            <option value="Artificial Intelligence" ${profile?.sector_preference === 'Artificial Intelligence' ? 'selected' : ''}>Artificial Intelligence</option>
-                                            <option value="E-commerce" ${profile?.sector_preference === 'E-commerce' ? 'selected' : ''}>E-commerce</option>
-                                            <option value="Cybersecurity" ${profile?.sector_preference === 'Cybersecurity' ? 'selected' : ''}>Cybersecurity</option>
-                                        </select>
-                                        <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
 
-                        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm entrance-section">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="size-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-xl">work_history</span>
+                                <div id="skillsSection">
+                                    ${renderSkillsManager(currentSkills)}
                                 </div>
-                                <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.work_pref">${i18next.t('profile.work_pref')}</h3>
                             </div>
-                            <div class="grid grid-cols-1 gap-3">
-                                ${renderWorkPreference('remote', i18next.t('profile.remote'), i18next.t('profile.remote_desc'), profile?.location_preference, 'profile.remote', 'profile.remote_desc')}
-                                ${renderWorkPreference('hybrid', i18next.t('profile.hybrid'), i18next.t('profile.hybrid_desc'), profile?.location_preference, 'profile.hybrid', 'profile.hybrid_desc')}
-                                ${renderWorkPreference('onsite', i18next.t('profile.onsite'), i18next.t('profile.onsite_desc'), profile?.location_preference, 'profile.onsite', 'profile.onsite_desc')}
+
+                            <!-- Right Column: Preferences and Integration (4 cols) -->
+                            <div class="xl:col-span-4 space-y-12">
+                                <div id="preferencesSection">
+                                    ${renderPreferences(profile)}
+                                </div>
+
+                                <div id="linksSection">
+                                    ${renderLinksSection(profile)}
+                                </div>
                             </div>
-                        </section>
+                        </div>
+                        
+                        <!-- Bottom Spacer -->
+                        <div class="h-20"></div>
                     </div>
-
-                    <!-- Professional Links -->
-                    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm entrance-section">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="size-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
-                                <span class="material-symbols-outlined text-xl">link</span>
-                            </div>
-                            <h3 class="font-bold text-slate-900 text-lg" data-i18n="profile.professional_links">${i18next.t('profile.professional_links')}</h3>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">LinkedIn URL</label>
-                                <input type="url" id="linkedinUrlInput" value="${profile?.linkedin_url || ''}" placeholder="https://linkedin.com/in/username" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium social-input">
-                                <p class="error-msg text-[10px] text-red-500 mt-1 hidden font-medium">Please enter a valid URL.</p>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">GitHub URL</label>
-                                <input type="url" id="githubUrlInput" value="${profile?.github_url || ''}" placeholder="https://github.com/username" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium social-input">
-                                <p class="error-msg text-[10px] text-red-500 mt-1 hidden font-medium">Please enter a valid URL.</p>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Portfolio URL</label>
-                                <input type="url" id="portfolioUrlInput" value="${profile?.portfolio_url || ''}" placeholder="https://yourname.dev" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium social-input">
-                                <p class="error-msg text-[10px] text-red-500 mt-1 hidden font-medium">Please enter a valid URL.</p>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Action Footer -->
-                <div class="mt-12 flex justify-end items-center gap-6 entrance-section">
-                    <button id="discardBtn" class="px-6 py-3 text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest" data-i18n="profile.discard_changes">
-                        ${i18next.t('profile.discard_changes')}
-                    </button>
-                    <button id="saveProfileBtn" class="bg-primary text-white px-10 py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-slate-900 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">save</span>
-                        <span data-i18n="profile.save_profile">${i18next.t('profile.save_profile')}</span>
-                    </button>
                 </div>
             </main>
         </div>
+        
+        <div id="modalContainer"></div>
     `;
 
-    // Local State Handlers
-    const skillInput = container.querySelector('#skillInput');
-    const addSkillBtn = container.querySelector('#addSkillBtn');
-    const skillsContainer = container.querySelector('#skillsContainer');
-    const saveProfileBtn = container.querySelector('#saveProfileBtn');
-    const discardBtn = container.querySelector('#discardBtn');
+    setupInteractions(container, profile, currentSkills);
+    triggerEntranceAnimations(container);
+};
 
+const setupInteractions = (container, profile, currentSkills) => {
+    // --- Skills Management ---
     const updateSkillsUI = () => {
-        skillsContainer.innerHTML = renderSkills(currentSkills);
-        bindSkillRemovers();
+        const skillsList = container.querySelector('#skillsList');
+        if (skillsList) {
+            skillsList.innerHTML = renderSkillsList(currentSkills);
+            bindSkillRemovers();
+        }
     };
 
     const bindSkillRemovers = () => {
-        container.querySelectorAll('.remove-skill').forEach(btn => {
+        container.querySelectorAll('.remove-skill-btn').forEach(btn => {
             btn.onclick = () => {
                 const skill = btn.dataset.skill;
                 currentSkills = currentSkills.filter(s => s !== skill);
@@ -219,157 +143,207 @@ function renderMainLayout(container) {
         });
     };
 
-    addSkillBtn.onclick = () => {
-        const val = skillInput.value.trim();
-        if (val && !currentSkills.includes(val)) {
-            currentSkills.push(val);
-            skillInput.value = '';
-            updateSkillsUI();
-        }
-    };
+    const addSkillBtn = container.querySelector('#addSkillBtn');
+    const skillInput = container.querySelector('#skillInput');
 
-    saveProfileBtn.onclick = async () => {
-        saveProfileBtn.disabled = true;
-        const originalContent = saveProfileBtn.innerHTML;
-        saveProfileBtn.innerHTML = `<div class="size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Saving...`;
-
-        // Gather all fields
-        const payload = {
-            full_name: container.querySelector('#fullNameInput').value.trim(),
-            education: container.querySelector('#educationInput').value.trim(),
-            university: container.querySelector('#universityInput').value.trim(),
-            graduation_year: parseInt(container.querySelector('#graduationYearInput').value) || null,
-            bio: container.querySelector('#bioInput').value.trim(),
-            skills: currentSkills,
-            target_roles: container.querySelector('#targetRolesInput').value.split(',').map(r => r.trim()).filter(r => r),
-            preferred_sector: container.querySelector('#sectorSelect').value,
-            preferred_location: container.querySelector('input[name="work_pref"]:checked').value,
-            linkedin_url: container.querySelector('#linkedinUrlInput').value.trim(),
-            github_url: container.querySelector('#githubUrlInput').value.trim(),
-            portfolio_url: container.querySelector('#portfolioUrlInput').value.trim()
-        };
-
-        // Validation for URLs
-        if (container.querySelectorAll('.error-msg:not(.hidden)').length > 0) {
-            saveProfileBtn.disabled = false;
-            saveProfileBtn.innerHTML = originalContent;
-            toast.error("Please fix validation errors before saving.");
-            return;
-        }
-
-        try {
-            const success = await profileController.handleSave(payload);
-            if (success) {
-                toast.success("Profile updated successfully");
-                saveProfileBtn.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> <span>Saved!</span>`;
-                saveProfileBtn.classList.replace('bg-primary', 'bg-emerald-600');
-
-                // Re-sync UI with new state
-                setTimeout(() => {
-                    renderProfile(container);
-                }, 1000);
-            } else {
-                throw new Error("Action failed");
-            }
-        } catch (err) {
-            saveProfileBtn.disabled = false;
-            saveProfileBtn.innerHTML = originalContent;
-            // Error handling is mostly covered in profileController/api
-        }
-    };
-
-    discardBtn.onclick = () => {
-        renderProfile(container);
-    };
-
-    // URL Validation (Optional - allows empty/null)
-    const isValidUrl = (url) => {
-        if (!url || url.trim() === "") return true;
-        try {
-            const parsed = new URL(url);
-            return parsed.protocol === "http:" || parsed.protocol === "https:";
-        } catch {
-            return false;
-        }
-    };
-
-    container.querySelectorAll('.social-input').forEach(input => {
-        input.oninput = () => {
-            const val = input.value.trim();
-            const errorMsg = input.nextElementSibling;
-            if (val && !isValidUrl(val)) {
-                errorMsg.classList.remove('hidden');
-                input.classList.add('border-red-300', 'focus:ring-red-100');
-            } else {
-                errorMsg.classList.add('hidden');
-                input.classList.remove('border-red-300', 'focus:ring-red-100');
+    if (addSkillBtn && skillInput) {
+        addSkillBtn.onclick = () => {
+            const val = skillInput.value.trim();
+            if (val && !currentSkills.includes(val)) {
+                currentSkills.push(val);
+                skillInput.value = '';
+                updateSkillsUI();
+                toast.success(`Skill "${val}" added`);
             }
         };
-    });
-
+        skillInput.onkeypress = (e) => {
+            if (e.key === 'Enter') addSkillBtn.click();
+        };
+    }
     bindSkillRemovers();
 
-    // Sidebar Logout
-    const logoutBtn = container.querySelector('#logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.onclick = () => {
-            store.clearToken();
-            window.location.hash = '#/login';
+    // --- Save All Changes ---
+    const saveBtn = container.querySelector('#saveAllChangesBtn');
+    if (saveBtn) {
+        saveBtn.onclick = async () => {
+            const originalContent = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<span class="size-5 border-3 border-white border-t-transparent rounded-full animate-spin"></span> Syncing...`;
+
+            try {
+                const getVal = (id) => container.querySelector(id)?.value?.trim() || "";
+                const getRadio = (name) => container.querySelector(`input[name="${name}"]:checked`)?.value || "remote";
+
+                const payload = {
+                    full_name: getVal('#fullNameInput'),
+                    university: getVal('#universityInput'),
+                    education: getVal('#educationInput'),
+                    graduation_year: parseInt(getVal('#graduationYearInput')) || null,
+                    bio: getVal('#bioInput'),
+                    skills: currentSkills,
+                    target_roles: [getVal('#targetRoleInput')],
+                    preferred_sector: container.querySelector('#sectorSelect')?.value || "Tech",
+                    preferred_location: getRadio('workMode'),
+                    linkedin_url: getVal('#linkedinUrl'),
+                    github_url: getVal('#githubUrl'),
+                    portfolio_url: getVal('#portfolioUrl'),
+                };
+
+                await api.put('/user/profile/update', payload);
+                toast.success("Intelligence successfully synchronized with AIRE Hub.");
+                setTimeout(() => renderProfile(container), 800);
+            } catch (err) {
+                toast.error(err.message || "Failed to synchronize profile core.");
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalContent;
+            }
         };
     }
 
-    // Entrance Animations
-    container.querySelectorAll('.entrance-section').forEach((el, i) => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'all 0.4s ease';
-        setTimeout(() => {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-        }, 100 * (i + 1));
-    });
+    const discardBtn = container.querySelector('#discardChangesBtn');
+    if (discardBtn) {
+        discardBtn.onclick = () => renderProfile(container);
+    }
 
-    // Profile Strength
-    const strengthTarget = profile?.profile_strength || 0;
-    const strengthEl = container.querySelector('#strengthValue');
-    const strengthBar = container.querySelector('#strengthBar');
-    let currentVal = 0;
+    // --- Resume Upload Workflow ---
+    const resumeInput = container.querySelector('#resumeUploadInput');
+    const triggerBtn = container.querySelector('#triggerUploadBtn');
+    const resumeZone = container.querySelector('#resumeZone');
+    const overlay = container.querySelector('#dropZoneOverlay');
 
-    setTimeout(() => {
-        if (strengthBar) strengthBar.style.width = `${strengthTarget}%`;
-        const counterInterval = setInterval(() => {
-            currentVal += 1;
-            if (currentVal >= strengthTarget) {
-                strengthEl.innerText = `${strengthTarget}%`;
-                clearInterval(counterInterval);
-            } else {
-                strengthEl.innerText = `${currentVal}%`;
+    if (triggerBtn && resumeInput) {
+        triggerBtn.onclick = () => resumeInput.click();
+        resumeInput.onchange = (e) => {
+            if (e.target.files.length > 0) handleResumeUpload(container, e.target.files[0]);
+        };
+    }
+
+    if (resumeZone && overlay) {
+        resumeZone.ondragover = (e) => {
+            e.preventDefault();
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+        };
+        overlay.ondragleave = () => {
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            overlay.classList.remove('opacity-100');
+        };
+        overlay.ondrop = (e) => {
+            e.preventDefault();
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            if (e.dataTransfer.files.length > 0) handleResumeUpload(container, e.dataTransfer.files[0]);
+        };
+    }
+};
+
+const handleResumeUpload = async (container, file) => {
+    const dropzoneContent = container.querySelector('#dropzoneContent');
+    const aiProcessingState = container.querySelector('#aiProcessingState');
+    const processingStep = container.querySelector('#processingStep');
+    const resumeZone = container.querySelector('#resumeZone');
+
+    if (!dropzoneContent || !aiProcessingState || !processingStep) return;
+
+    // Enter AI Processing Mode
+    dropzoneContent.classList.add('hidden');
+    aiProcessingState.classList.remove('hidden');
+    resumeZone.classList.add('bg-primary/5', 'border-primary/20', 'animate-pulse');
+
+    const steps = [
+        "Initializing Intelligence Engine...",
+        "Analyzing Resume Topology...",
+        "Extracting Skill Identity...",
+        "Mapping Experience Network...",
+        "Finalizing Profile Sync..."
+    ];
+
+    let currentStep = 0;
+    const stepInterval = setInterval(() => {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            processingStep.innerText = steps[currentStep];
+        }
+    }, 1200);
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await api.post('/profile/parse-resume', formData, true);
+        if (response.status === 'success') {
+            renderVerificationModal(container, response.data);
+        }
+    } catch (err) {
+        toast.error("Resume analysis failed.");
+        dropzoneContent.classList.remove('hidden');
+        aiProcessingState.classList.add('hidden');
+        resumeZone.classList.remove('bg-primary/5', 'border-primary/20', 'animate-pulse');
+    } finally {
+        clearInterval(stepInterval);
+    }
+};
+
+const renderVerificationModal = (container, data) => {
+    const modalContainer = container.querySelector('#modalContainer');
+    modalContainer.innerHTML = renderResumeModal(data);
+
+    const modal = container.querySelector('#resumeVerificationModal');
+    const closeBtn = modal.querySelector('#closeModalBtn');
+    const confirmBtn = modal.querySelector('#confirmMergeBtn');
+
+    closeBtn.onclick = () => {
+        modal.remove();
+        // Reset dropzone
+        const dropzoneContent = container.querySelector('#dropzoneContent');
+        const aiProcessingState = container.querySelector('#aiProcessingState');
+        const resumeZone = container.querySelector('#resumeZone');
+        if (dropzoneContent && aiProcessingState && resumeZone) {
+            dropzoneContent.classList.remove('hidden');
+            aiProcessingState.classList.add('hidden');
+            resumeZone.classList.remove('bg-primary/5', 'border-primary/20', 'animate-pulse');
+        }
+    };
+
+    confirmBtn.onclick = async () => {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = `<span class="size-5 border-3 border-white border-t-transparent rounded-full animate-spin"></span> Syncing...`;
+
+        try {
+            const refinedData = {
+                full_name: modal.querySelector('#modalName').value.trim(),
+                education: modal.querySelector('#modalEducation').value.trim(),
+                skills: Array.from(modal.querySelectorAll('#modalSkillsContainer > span')).map(s => s.innerText.replace('close', '').trim()),
+                projects: Array.from(modal.querySelectorAll('#modalProjectsContainer p')).map(p => p.innerText.trim())
+            };
+
+            const response = await api.post('/profile/confirm-resume-data', refinedData);
+            if (response.status === 'success') {
+                toast.success("Intelligence merged successfully!");
+                modal.remove();
+                renderProfile(container);
             }
-        }, 15);
-    }, 600);
-}
+        } catch (err) {
+            toast.error("Merge failed.");
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = `<span class="material-symbols-outlined text-xl">verified_user</span> Confirm & Sync Profile`;
+        }
+    };
+};
 
-function renderSkills(skills) {
-    if (skills.length === 0) return `<p class="text-xs text-slate-400 italic" data-i18n="profile.no_skills">${i18next.t('profile.no_skills', 'No skills added yet.')}</p>`;
-    return skills.map(skill => `
-        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 animate-in fade-in zoom-in duration-300">
-            ${skill}
-            <button class="remove-skill text-slate-400 hover:text-red-500 transition-colors" data-skill="${skill}">
-                <span class="material-symbols-outlined text-sm">close</span>
-            </button>
-        </div>
-    `).join('');
-}
+const triggerEntranceAnimations = (container) => {
+    // 1. Progress Bar Animation
+    setTimeout(() => {
+        const bar = container.querySelector('#strengthBar');
+        if (bar) {
+            bar.style.width = bar.getAttribute('data-target-width');
+        }
+    }, 400);
 
-function renderWorkPreference(value, label, subtext, current, labelKey, subtextKey) {
-    const isChecked = current === value;
-    return `
-        <label class="flex flex-col p-4 border ${isChecked ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-slate-200 bg-slate-50'} rounded-xl cursor-pointer transition-all hover:border-primary/50 group">
-            <div class="flex items-start justify-between mb-2">
-                <span class="font-bold text-sm text-slate-900" data-i18n="${labelKey}">${label}</span>
-                <input type="radio" name="work_pref" value="${value}" ${isChecked ? 'checked' : ''} class="accent-primary size-4 cursor-pointer">
-            </div>
-            <p class="text-[10px] text-slate-500 leading-relaxed" data-i18n="${subtextKey}">${subtext}</p>
-        </label>
-    `;
-}
+    // 2. Section Staggered Entrance
+    const sections = container.querySelectorAll('.section-entrance');
+    sections.forEach((section, i) => {
+        setTimeout(() => {
+            section.classList.add('show');
+        }, 100 + (i * 120));
+    });
+};

@@ -12,7 +12,8 @@ from .routers import (
     admin_router, 
     interaction_router as feedback_router, 
     internship_router,
-    analytics_router
+    analytics_router,
+    resume_router
 )
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -42,7 +43,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="AI-Based Internship Recommendation Engine",
     description="Secure, Scalable Backend with TF-IDF Matching & Gemini Analysis",
-    version="2.1.0",
+    version="2.3.0",
     lifespan=lifespan
 )
 app.add_middleware(
@@ -80,6 +81,7 @@ app.include_router(admin_router.router, prefix="/api")
 app.include_router(feedback_router.router, prefix="/api")
 app.include_router(internship_router.router, prefix="/api")
 app.include_router(analytics_router.router, prefix="/api")
+app.include_router(resume_router.router, prefix="/api")
 
 @app.get("/api/health", tags=["Health"])
 async def api_health():

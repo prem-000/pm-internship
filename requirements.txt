@@ -13,3 +13,9 @@ pydantic[email]
 numpy
 pandas
 pydantic-settings
+pdfminer.six
+python-docx
+spacy
+spacy-transformers
+sentence-transformers
+python-multipart
