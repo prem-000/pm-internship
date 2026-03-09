@@ -29,6 +29,8 @@ safetensors
 huggingface-hub
 tqdm
 
+rapidfuzz
+
 pymongo
 motor
 
