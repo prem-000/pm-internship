@@ -2,34 +2,54 @@ fastapi
 uvicorn[standard]
 
 pydantic
+pydantic-settings
 python-dotenv
 python-multipart
 email-validator
 
 numpy
 pandas
-scikit-learn
 scipy
+scikit-learn
+joblib
+threadpoolctl
 
 spacy
 spacy-transformers
 sentence-transformers
+thinc
+srsly
+wasabi
+catalogue
 
 torch
 transformers
+tokenizers
+safetensors
+huggingface-hub
+tqdm
 
 pymongo
 motor
 
 supabase
+postgrest
 
 docx2txt
 python-docx
 pdfminer.six
+lxml
 
 requests
 httpx
+urllib3
 
 slowapi
+limits
+
 passlib[bcrypt]
 python-jose[cryptography]
+cryptography
+
+watchfiles
+websockets
