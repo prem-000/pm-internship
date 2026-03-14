@@ -145,4 +145,53 @@ class GeminiService:
         except Exception:
             return {"severity_score": 0.0, "explanation": "Safety check bypassed"}
 
+    async def extract_skills_from_description(self, description: str) -> list:
+        """Extracts technical skills from internship descriptions via Gemini."""
+        if not description or len(description) < 20:
+            return []
+
+        prompt = f"""
+        Extract only technical skills (programming languages, frameworks, tools) from the following internship description.
+        Return the result ONLY as a JSON array of strings.
+        
+        Description:
+        {description}
+        """
+        
+        try:
+            response = self.model.generate_content(prompt)
+            text = response.text
+            # Clean up JSON formatting if present (e.g., markdown blocks)
+            start = text.find('[')
+            end = text.rfind(']') + 1
+            if start != -1 and end != -1:
+                return json.loads(text[start:end])
+            return []
+        except Exception as e:
+            print(f"GeminiService: Skill extraction failed: {e}")
+            return []
+
+    async def generate_skill_explanation(self, internship_title: str, missing_skills: list) -> str:
+        """Generates a brief explanation of why specific missing skills are needed for a role."""
+        if not missing_skills:
+            return "You are a perfect match for this role based on your skills!"
+
+        prompt = f"""
+        Explain briefly in one or two sentences why the following skills are required for a {internship_title} role.
+        
+        Missing Skills:
+        {', '.join(missing_skills)}
+        
+        Keep the explanation professional and concise.
+        """
+        
+        try:
+            response = self.model.generate_content(prompt)
+            if response and response.text:
+                return response.text.strip()
+            return f"These skills are fundamental to the {internship_title} role."
+        except Exception as e:
+            print(f"GeminiService: Skill explanation failed: {e}")
+            return f"{', '.join(missing_skills)} are key requirements for this position."
+
 gemini_service = GeminiService()

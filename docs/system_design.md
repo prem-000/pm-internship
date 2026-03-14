@@ -1,59 +1,188 @@
-# System Design & Architecture — AIRE v2.3.0
+# System Design & Architecture — AIRE v2.3.2
 
 ## 1. High-Level Architecture
-AIRE is built on a service-oriented backend architecture using **FastAPI** for high-performance async operations and **MongoDB** for flexible, schema-less user profiling.
+AIRE is built on a **service-oriented backend** architecture using FastAPI for high-performance async operations and MongoDB Atlas for flexible, schema-less user profiling.
 
-```mermaid
-graph TD
-    Client[Web Frontend / Mobile] --> Gateway[FastAPI Backend]
-    
-    subgraph Services
-    Gateway --> Auth[Auth Service]
-    Gateway --> Resume[Resume Service: Step 1 Parse, Step 2 Confirm]
-    Gateway --> Recom[Adaptive Recommender]
-    Gateway --> Gemini[Gemini AI Interface]
-end
-
-    subgraph Data Layer
-        Auth --> DB[(MongoDB Atlas)]
-        Resume --> NLP[spaCy / Transformers]
-        Recom --> Vector[TF-IDF / Cosine Similarity]
-        Gemini --> LLM[Google Gemini 1.5 Pro]
-    end
 ```
+ ┌─────────────────────────────────────────────────────────────────────┐
+ │                         AIRE Web Frontend                           │
+ │                (Next.js 14, Zustand, Tailwind CSS)                  │
+ └────────────────────────────┬────────────────────────────────────────┘
+                              │ REST API (JWT Auth)
+ ┌────────────────────────────▼────────────────────────────────────────┐
+ │                       FastAPI Backend (Python 3.11)                 │
+ │                                                                     │
+ │  ┌──────────┐  ┌───────────────┐  ┌─────────────────┐  ┌────────┐  │
+ │  │   Auth   │  │    Profile /  │  │  Recommender    │  │ Admin  │  │
+ │  │  Router  │  │    Resume     │  │    Router       │  │ Panel  │  │
+ │  └────┬─────┘  └──────┬────────┘  └───────┬─────────┘  └───┬────┘  │
+ │       │               │                   │                │       │
+ │  ┌────▼───────────────▼───────────────────▼────────────────▼────┐  │
+ │  │                   Core Services Layer                         │  │
+ │  │  • HPIS Merge Engine    • GeminiService   • SkillGapService   │  │
+ │  │  • Adaptive Recommender • AnalyticsStore  • ProfileHelper     │  │
+ │  └────────────────────────────┬───────────────────────────────────┘  │
+ └───────────────────────────────┼─────────────────────────────────────┘
+                                 │
+          ┌──────────────────────┼──────────────────────┐
+          │                      │                      │
+  ┌───────▼──────┐    ┌──────────▼────────┐   ┌────────▼──────────┐
+  │  MongoDB     │    │  spaCy Transformers│   │  Google Gemini    │
+  │  Atlas       │    │  + SentenceTransf. │   │  1.5 Pro API      │
+  └──────────────┘    └────────────────────┘   └───────────────────┘
+```
+
+---
 
 ## 2. Core Modules
 
-### 2.1 Adaptive Recommendation Engine
-The engine uses a **Hybrid Scoring System**:
-1.  **Semantic Layer (70%)**: TF-IDF Vectorization of user skills vs. internship descriptions.
-2.  **Behavioral Layer (Dynamic)**: Adjusts base scores using a "Multiplier Gradient" based on user interaction history (clicks, saves, skips).
-3.  **Heuristic Layer (30%)**: Matches categorical preferences like Location and Industry Sector.
+### 2.1 Adaptive Recommendation Engine (`recommender.py`)
+A multi-stage hybrid scoring system:
 
-### 2.2 Resume Intelligence Pipeline (New)
-A modular NLP pipeline designed for high-precision extraction:
-- **Text Layer**: Uses `pdfminer.six` and `python-docx` for robust stream extraction.
-- **NER Layer**: `spacy-transformers` handles entity identification (Name, Companies, Dates).
-- **Semantic Normalization**: Uses `SentenceTransformer (all-MiniLM-L6-v2)` for mapping raw resume text to a canonical skill database.
-- **Merge Logic**: The **HPIS (Hybrid Profile Integration System)** ensures that manual user entries are authoritative, while new data from resumes is merged or appended safely.
+| Stage | Weight | Description |
+|-------|--------|-------------|
+| Semantic Layer | ~70% | TF-IDF + Cosine Similarity of user skills vs. internship description |
+| Skill Match | Inline | Fuzzy + exact normalized skill matching |
+| Sector Alignment | ~20% | Historical sector preference from interaction history |
+| Location Match | ~10% | Remote vs. city preference alignment |
+| Behavioral Boost | ±20pts | Adaptive adjustment based on `viewed`, `saved`, `applied`, `rejected` actions |
 
-### 2.3 Generative Learning Service
-Integrates directly with **Google Gemini Pro** to transform discovered "Skill Gaps" into 4-week structured roadmaps. The service handles prompt engineering to ensure roadmaps are specific, achievable, and localized to the user's preferred language.
+### 2.2 Resume Intelligence Pipeline (`services/resume_service.py`)
+A modular, two-step NLP pipeline:
 
-## 3. Data Strategy
+**Step 1 — Parse (Never writes to DB):**
+1. Text extraction: `pdfminer.six` for PDFs, `python-docx` for DOCX.
+2. Section detection: Named Entity Recognition using `en_core_web_trf`.
+3. Semantic skill normalization: `all-MiniLM-L6-v2` to map raw text to a canonical skill set.
 
-### 3.1 User Profiling
-User profiles are stored as rich documents in MongoDB. 
-- **Authoritative Data**: Manual form entries.
-- **Latent Data**: Weighted sector/skill preferences derived from interactions.
-- **AI-Extracted Data**: Normalized attributes from resumes.
+**Step 2 — Confirm (User-controlled merge):**
+1. User reviews extracted data in the Verification Modal.
+2. HPIS Merge Logic: Manual entries are always authoritative. AI data enriches, never overwrites.
+3. Profile Strength recalculated after merge.
 
-### 3.2 Security Implementation
-- **JWT Authentication**: Short-lived tokens with role-based access control.
-- **Rate Limiting**: IP-based throttling on sensitive endpoints (Login, Resume Upload).
-- **Environment Isolation**: Secure configuration management for DB URIs and API keys.
+### 2.3 Skill Gap Service (`services/skill_gap_service.py`)
+Introduced in v2.2 — runs on demand when a user clicks an internship.
 
-## 4. Scalability & Performance
-- **Asynchronous Processing**: All I/O bound operations (DB, AI APIs) use Python `asyncio`.
-- **Pre-computed Vectors**: TF-IDF matrices are fitted at startup to ensure sub-second recommendation response times.
-- **Lazy Loading**: Heavy NLP models (Transformers) are loaded on demand to optimize memory footprint.
+**Pipeline:**
+```
+User clicks internship
+        ↓
+Fetch internship from DB (by _id or internship_id)
+        ↓
+If required_skills empty → Extract via Gemini + Cache to DB
+        ↓
+missing = required_skills − user_skills   (set difference)
+        ↓
+Send missing skills to Gemini for explanation
+        ↓
+Return structured JSON response
+```
+
+### 2.4 Gemini AI Interface (`gemini_service.py`)
+Centralized service for all generative AI operations:
+
+| Method | Purpose |
+|--------|---------|
+| `extract_skills_from_description()` | Parses raw internship descriptions → structured skill list |
+| `generate_skill_explanation()` | Generates brief professional explanation of why missing skills matter |
+| `generate_safety_filter()` | Content safety validation layer |
+
+---
+
+## 3. Data Architecture
+
+### 3.1 MongoDB Collections
+
+| Collection | Purpose |
+|------------|---------|
+| `users` | User profiles, skills, preferences, resume data |
+| `internships` | Job listings with skills, description, company, sector |
+| `user_feedback` | Interaction logs (viewed, saved, applied, rejected) |
+| `user_behavior_profiles` | Aggregated sector preferences per user |
+| `match_scores` | Historical match percentage snapshots |
+
+### 3.2 User Profile Document (Key Fields)
+```json
+{
+  "email": "user@gmail.com",
+  "full_name": "...",
+  "skills": ["Python", "React"],
+  "target_roles": ["ML Engineer"],
+  "sector_preference": ["AI", "Fintech"],
+  "location_preference": ["Remote", "Bangalore"],
+  "profile_strength": 80,
+  "resume_parsed": true,
+  "linkedin_url": "...",
+  "github_url": "..."
+}
+```
+
+### 3.3 Internship Document (Key Fields)
+```json
+{
+  "internship_id": "INT102",
+  "title": "Frontend Developer Intern",
+  "company": "Tech Corp",
+  "sector": "SaaS",
+  "location": "Remote",
+  "required_skills": ["HTML", "CSS", "React"],
+  "job_description": "...",
+  "apply_url": "..."
+}
+```
+
+---
+
+## 4. Security
+
+| Layer | Implementation |
+|-------|---------------|
+| Authentication | JWT (HS256), short-lived access tokens |
+| Password Hashing | `bcrypt` via `passlib` |
+| Rate Limiting | `slowapi` — IP-based throttling on login and resume upload |
+| Input Validation | Pydantic models on all request bodies |
+| Domain Restriction | Only `@gmail.com` emails accepted at registration |
+
+---
+
+## 5. Performance
+
+- **Pre-computed TF-IDF**: Fitted at server startup — recommendation inference < 500ms.
+- **Async I/O**: All DB and Gemini calls are `async/await` — no blocking on I/O.
+- **Skill Cache**: When Gemini extracts skills from a description, results are cached to the internship document, preventing re-computation.
+- **Lazy NLP Load**: Transformer models loaded on first request to optimize startup time.
+
+---
+
+## 6. Frontend Architecture
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 14 (App Router) |
+| State Management | Zustand (per-store: user, recommendations, analytics) |
+| Styling | Tailwind CSS |
+| Internationalization | `react-i18next` (EN, HI, TA, TE) |
+| API Client | Axios with JWT interceptor |
+| UI Components | Lucide Icons, Custom Cards, Modals |
+| Data Visualization | Recharts |
+
+### Frontend Store Architecture
+```
+userStore          → profile data, auth operations
+recommendationStore → recommendations, skill gap reports, gap fetching
+analyticsStore     → match trend, sector distribution, heatmaps
+```
+
+---
+
+## 7. Version History
+
+| Version | Key Changes |
+|---------|------------|
+| v2.3.2 | Dashboard stat card accuracy fix; high-match role count metric |
+| v2.3.1 | Skill Gap Visualization — SkillGapModal with AI explanations |
+| v2.3.0 | Skill Gap API endpoint; SkillGapService; GeminiService extensions |
+| v2.2.0 | Resume Verification Modal; two-step parse workflow |
+| v2.1.0 | Resume Intelligence System; HPIS merge engine |
+| v2.0.0 | Behavioral adaptation; interaction feedback scoring |
+| v1.0.0 | Base recommendation engine with TF-IDF + JWT Auth |

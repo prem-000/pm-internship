@@ -52,6 +52,12 @@ For each gap identified, the system calculates:
 4️⃣ Gemini AI Learning Roadmaps
 For each missing skill, the system generates a 4–5 week structured learning path powered by **Google Gemini 1.5 Pro**.
 
+5️⃣ Skill Gap Analysis (v2.2)
+Provides real-time AI-driven insights when you select an internship:
+- **Missing Skills Identification**: Instantly compares your resume profile with specific role requirements.
+- **AI Career Context**: Uses Gemini AI to explain *why* specific skills are required for your target role.
+- **Unified ID-Based Retrieval**: Seamlessly handles mapping from recommendations to detailed analysis.
+
 🛠 Tech Stack
 | Layer | Technology |
 | :--- | :--- |

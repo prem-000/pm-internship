@@ -41,26 +41,37 @@ class ProfileUpdater:
                 set_data[field] = parsed_data[field]
 
         # Apply basic sets first
+        print(f"📄 Updating basic info for {email}: {set_data}")
         db.users.update_one({"email": email}, {"$set": set_data})
 
         # Rule 1: Deduplication & $addToSet for Skills
-        if parsed_data.get("skills"):
+        skills = parsed_data.get("skills")
+        if skills and isinstance(skills, list):
             # We use $each with $addToSet to add multiple unique items
-            db.users.update_one(
-                {"email": email},
-                {"$addToSet": {"skills": {"$each": [s.lower() for s in parsed_data["skills"]]}}}
-            )
+            # Ensure skills are strings before lowering
+            processed_skills = [str(s).lower() for s in skills if s]
+            if processed_skills:
+                print(f"🎯 Merging {len(processed_skills)} skills for {email}")
+                db.users.update_one(
+                    {"email": email},
+                    {"$addToSet": {"skills": {"$each": processed_skills}}}
+                )
 
         # Rule 3: Append for Projects, Experience, Certifications
-        # Note: We use $push with $each to append items. 
-        # To avoid duplicates, we'll filters items that already exist in the user's list.
         for field in ["projects", "experience", "certifications"]:
             new_items = parsed_data.get(field, [])
             if new_items:
-                existing_items = user.get(field, [])
+                # Ensure new_items is a list
+                if isinstance(new_items, str):
+                    new_items = [new_items]
+                
+                user_updated = db.users.find_one({"email": email})
+                existing_items = user_updated.get(field, []) if user_updated else []
+                
                 # Simple string-based deduplication for append
-                unique_items = [i for i in new_items if i not in existing_items]
+                unique_items = [i for i in new_items if i and i not in existing_items]
                 if unique_items:
+                    print(f"➕ Appending {len(unique_items)} items to {field} for {email}")
                     db.users.update_one(
                         {"email": email},
                         {"$push": {field: {"$each": unique_items}}}

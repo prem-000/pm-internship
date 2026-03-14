@@ -80,3 +80,56 @@ The backend exposes five primary routers:
 - **Profile Completion Rate**: Target > 80% for 90% of active users.
 - **Resume Upload Adoption**: Target > 50% of new signups.
 - **Recommendation Relevance**: Improvement in CTR on recommended internships.
+
+## 13. PRD Update — Internship Skill Gap Retrieval (v2.2)
+
+### Feature Overview
+The system must provide missing skill insights when a user selects an internship. When a user clicks an internship, the backend retrieves the internship requirements and compares them with the user's skills extracted from their resume.
+
+The system then returns:
+- Missing skills required for the internship
+- A short explanation generated using Gemini AI explaining why those skills are important.
+
+This feature allows users to understand why they may not be eligible for a specific internship.
+
+### System Integration
+This feature extends the existing recommendation system and does not introduce new routers.
+
+Updated pipeline:
+`Resume Upload` → `Resume Parsing` → `Skill Detection` → `Skill Normalization` → `Profile Merge Engine` → `Recommendation Engine` → `User clicks internship` → `Internship Skill Retrieval` → `Skill Gap Detection` → `Gemini Explanation Generation` → `Missing Skills JSON Response`
+
+### Backend Router Integration
+The feature will be implemented inside `recommendation_router.py`.
+New endpoint: `GET /api/recommend/{internship_id}/skill-gap`
+
+This endpoint returns missing skills for the selected internship.
+
+### Skill Gap Algorithm
+The system computes missing skills by comparing required internship skills with user skills.
+Algorithm: `missing_skills = required_skills − user_skills`
+
+### Gemini Explanation Generation
+After missing skills are computed, the system sends them to Gemini to generate a brief explanation.
+
+### API Response Structure
+The endpoint must return a structured JSON response containing internship data, user skills, missing skills, and the Gemini explanation.
+
+### Backend Services
+A new service will handle the skill gap computation: `skill_gap_service.py`.
+Responsibilities:
+- compute missing skills
+- call Gemini API for explanation
+- return structured JSON response.
+
+### Performance Targets
+| Metric | Target |
+| :--- | :--- |
+| Skill gap computation | < 50 ms |
+| Gemini explanation generation | < 2 seconds |
+| API response time | < 3 seconds |
+
+### System Constraints
+- No new router should be created.
+- The feature must extend the existing recommendation router.
+- User profile data must not be modified during skill gap retrieval.
+- Missing skills must be computed dynamically.

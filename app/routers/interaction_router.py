@@ -34,6 +34,34 @@ async def get_behavior_profile(current_user: dict = Depends(get_current_user)):
         }
     }
 
+@router.get("/feedback/applications")
+async def get_my_applications(current_user: dict = Depends(get_current_user)):
+    db = get_database()
+    user_id = str(current_user["_id"])
+    
+    # Fetch applied items
+    applications = list(db.user_feedback.find({"user_id": user_id, "action": "applied"}).sort("timestamp", -1))
+    
+    results = []
+    for app in applications:
+        # Resolve internship details
+        internship = db.internships.find_one({"_id": ObjectId(app["internship_id"])})
+        if not internship:
+            # Try by string ID
+            internship = db.internships.find_one({"internship_id": app["internship_id"]})
+            
+        results.append({
+            "id": str(app["_id"]),
+            "internship_id": app["internship_id"],
+            "title": internship.get("title") if internship else "Unknown Role",
+            "company": (internship.get("company") or internship.get("organization")) if internship else "Unknown Company",
+            "status": app.get("status", "Applied"),
+            "date": app["timestamp"].strftime("%Y-%m-%d"),
+            "location": internship.get("location") if internship else "Remote"
+        })
+        
+    return results
+
 @router.post("/feedback/")
 
 
