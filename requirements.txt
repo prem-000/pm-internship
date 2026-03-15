@@ -37,20 +37,14 @@ motor
 supabase
 postgrest
 
-docx2txt
-python-docx
-pdfminer.six
-lxml
-
-<<<<<<< HEAD
 docx2txt==0.9
 python-docx==1.1.0
 pdfminer.six==20231228
-=======
+lxml
+
 requests
 httpx
 urllib3
->>>>>>> 91cc6fc21a971b555d1eefa3882ca759aaba03ae
 
 slowapi
 limits
@@ -61,4 +55,5 @@ cryptography
 
 watchfiles
 websockets
+
 google-generativeai
