@@ -173,7 +173,8 @@ export default function Dashboard() {
                 ))
               ) : (
                 <p className="text-xs text-slate-500 italic text-center py-4">{t('start_browsing')}</p>
-              )}
+
+)}
             </CardContent>
           </Card>
           

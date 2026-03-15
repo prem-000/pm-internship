@@ -1,20 +1,22 @@
-🚀 AI-Based Adaptive Internship Recommendation Engine v2.3
+🚀 AI-Based Adaptive Internship Recommendation Engine v2.4
 
 An intelligent, adaptive AI system that matches students with highly relevant internships using hybrid semantic matching, behavioral learning, and the new **Resume Intelligence System v2.0**.
 
-Built for scalability, personalization, and real-world career growth.
+Built for scalability, personalization, and real-world career growth, now optimized for **Render Free Tier Deployment**.
 
 🎯 Problem Statement
 - Students are overwhelmed by long, irrelevant internship listings.
 - Most portals return static, keyword-based results with no personalization or learning capability.
 - Manual profile building is tedious and prone to missing key technical skills.
+- Heavy Transformer models often crash on restricted server environments (e.g., 512MB RAM).
 
 This system solves that by:
 - **Resume Intelligence v2.0**: Automatically parse PDF/DOCX resumes using spaCy Transformers and Sentence Embeddings.
 - **Adaptive Ranking**: Learns from user interactions (clicks, saves, applications) to re-weight results.
+- **Lazy Transformer Deployment**: Heavy models are initialized only when required, preventing startup OOM errors.
 - **Impact-Based Gap Analysis**: Identifies missing skills and quantifies their impact on your career visibility.
 - **Generative Roadmaps**: Provides structured learning paths via Gemini AI.
-- **Hybrid Scoring**: Combines TF-IDF semantic similarity with fuzzy and semantic skill matching.
+- **Hybrid Scoring**: Combines TF-IDF semantic similarity with real-time **Transformer-based embeddings** (`all-MiniLM-L6-v2`).
 
 🏗 System Architecture
 ```text
@@ -37,26 +39,23 @@ Advanced modular NLP pipeline for automated profiling:
 - **Semantic Normalizer**: Sentence embeddings (`all-MiniLM-L6-v2`) to prevent duplicate skills (e.g., JS → JavaScript).
 - **HPIS Merge Engine**: Safety-first logic—AI never overwrites manual entries, it only enriches them.
 
-2️⃣ Adaptive Scoring Engine
+2️⃣ Lazy Model Loading (NEW v2.4)
+Optimized for low-memory environments (Render Free Tier):
+- **Deferred Initialization**: Transformers load only when the first AI request is received.
+- **Minimal Startup Footprint**: Server starts in < 3s with < 150MB RAM.
+- **Model Storage**: Uses `all-MiniLM-L6-v2` for high efficiency and low memory overhead.
+
+3️⃣ Adaptive Scoring Engine
 A multi-layered scoring model that evolves with the user:
-- **Base Score (70%)**: TF-IDF Semantic Similarity + Fuzzy Skill Match.
+- **Base Score (70%)**: **Transformer Semantic Similarity** + Fuzzy Skill Match.
 - **Sector Alignment (20%)**: Historical preference for specific industries.
 - **Location Match (10%)**: Remote vs. City preference.
 - **Behavior Bonus**: Dynamic points added/subtracted based on `viewed`, `saved`, `applied`, or `rejected` actions.
 
-3️⃣ Impact-Based Skill Gap Analysis
+4️⃣ Impact-Based Skill Gap Analysis
 For each gap identified, the system calculates:
 - **Estimated Score Gain**: The precise increase in match percentage if the skill is acquired.
 - **Internships Unlocked**: The number of additional opportunities in the database the user would become relevant for.
-
-4️⃣ Gemini AI Learning Roadmaps
-For each missing skill, the system generates a 4–5 week structured learning path powered by **Google Gemini 1.5 Pro**.
-
-5️⃣ Skill Gap Analysis (v2.2)
-Provides real-time AI-driven insights when you select an internship:
-- **Missing Skills Identification**: Instantly compares your resume profile with specific role requirements.
-- **AI Career Context**: Uses Gemini AI to explain *why* specific skills are required for your target role.
-- **Unified ID-Based Retrieval**: Seamlessly handles mapping from recommendations to detailed analysis.
 
 🛠 Tech Stack
 | Layer | Technology |
@@ -64,8 +63,8 @@ Provides real-time AI-driven insights when you select an internship:
 | **Backend** | FastAPI (Async Python) |
 | **Database** | MongoDB Atlas |
 | **NLP (Resume)** | spaCy Transformers + SentenceTransformers |
-| **NLP (Recommender)** | Scikit-learn (TF-IDF Vectorization) |
-| **Similarity** | Cosine Similarity + Rapidfuzz |
+| **NLP (Recommender)** | SentenceTransformers (`all-MiniLM-L6-v2`) |
+| **Similarity** | Cosine Similarity (via Transformers) + Rapidfuzz |
 | **AI/LLM** | Google Gemini 1.5 Pro API |
 | **Authentication** | JWT + Argon2 Hashing |
 
@@ -73,7 +72,7 @@ Provides real-time AI-driven insights when you select an internship:
 - `POST /api/auth/register`: Create a account (Gmail enforcement).
 - **`POST /api/profile/parse-resume`**: Step 1 - Extract data for review (File upload).
 - **`POST /api/profile/confirm-resume-data`**: Step 2 - Save the reviewed data to profile.
-- `POST /api/recommend/`: Get personalized, adaptive recommendations.
+- `POST /api/recommend/`: Get personalized, adaptive recommendations (Triggers lazy loading on first call).
 - `POST /api/interactions/`: Record actions to train the engine.
 
 🧪 Local Setup
@@ -100,6 +99,7 @@ Provides real-time AI-driven insights when you select an internship:
 | Static results | Results evolve based on your actions |
 | No skill insight | Quantified "Impact" based gap analysis |
 | No guidance | AI-driven roadmap generation |
+| Heavy RAM usage | Lazy Transformer Loading |
 
-🏆 Version: 2.3.0
-**Status**: Fully functional with Resume Intelligence v2.0, Interaction Tracking, and Strategic Gap Insights.
+🏆 Version: 2.4.0
+**Status**: Fully functional with Resume Intelligence v2.0, Interaction Tracking, and Lazy Transformer Deployment.

@@ -8,7 +8,10 @@ from .utils.scoring import (
 )
 from .utils.skill_gap import analyze_skill_gap
 from .database import get_database
+from .utils.model_loader import model_loader
 import numpy as np
+import torch
+from sentence_transformers import util
 
 class InternshipRecommender:
     def __init__(self):
@@ -18,7 +21,8 @@ class InternshipRecommender:
             ngram_range=(1, 2),
             max_features=5000
         )
-        self.internship_vectors = None
+        self.internship_vectors_tfidf = None
+        self.internship_embeddings_transformer = None
         self.synonyms = {
             "js": "javascript",
             "ml": "machine learning",
@@ -35,9 +39,9 @@ class InternshipRecommender:
         if not internships:
             print("⚠️ No internships found to fit the recommender.")
             return
-        
+
         self.internships_df = pd.DataFrame(internships)
-        
+
         # Ensure 'job_description' exists to avoid KeyError
         if 'job_description' not in self.internships_df.columns:
             print("ℹ️ 'job_description' column missing. Synthesizing from available fields.")
@@ -46,24 +50,40 @@ class InternshipRecommender:
                 axis=1
             )
 
-        # Precompute TF-IDF vectors for internship descriptions
+        # Precompute TF-IDF vectors (fast and low memory)
         descriptions = self.internships_df['job_description'].fillna("").tolist()
         if descriptions and any(d.strip() for d in descriptions):
-            self.internship_vectors = self.tfidf_vectorizer.fit_transform(descriptions)
-            print(f"📊 Recommender fitted with {len(internships)} internships and TF-IDF vectors.")
+            self.internship_vectors_tfidf = self.tfidf_vectorizer.fit_transform(descriptions)
+            print(f"📊 Recommender fitted with {len(internships)} internships (TF-IDF ready).")
         else:
             print("⚠️ No valid job descriptions found for vectorization.")
+
+        # NOTE: Transformer embeddings will be computed lazily on first request
+        self.internship_embeddings_transformer = None
+
+    def _ensure_transformer_embeddings(self):
+        """Lazily compute transformer embeddings for all internships."""
+        if self.internship_embeddings_transformer is None and self.internships_df is not None:
+            print("⏳ Computing Transformer Embeddings for internships (Lazy Initialization)...")
+            descriptions = self.internships_df['job_description'].fillna("").tolist()
+            # This call will trigger model loading via model_loader.model
+            self.internship_embeddings_transformer = model_loader.model.encode(
+                descriptions,
+                show_progress_bar=True,
+                convert_to_tensor=True
+            )
+            print("✅ Internship Transformer Embeddings ready.")
 
     def calculate_skill_match(self, user_skills: list, required_skills: list):
         if not required_skills:
             return 1.0, [], []
-            
+
         user_skills_norm = {self.normalize_skill(s) for s in user_skills}
         req_skills_norm = {self.normalize_skill(s) for s in required_skills}
-        
+
         matched = user_skills_norm.intersection(req_skills_norm)
         missing = req_skills_norm - user_skills_norm
-        
+
         match_percentage = len(matched) / len(req_skills_norm) if req_skills_norm else 0
         return match_percentage, list(matched), list(missing)
 
@@ -75,19 +95,19 @@ class InternshipRecommender:
     def calculate_feedback_boost(self, row: dict, behavior_profile: dict):
         boost = 0.0
         sector = row.get("sector")
-        
+
         # Feedback Boost logic: +15 (applied), +10 (saved), +5 (viewed), -10 (rejected)
         # We aggregate these in the interaction_router under 'feedback_boosts'
         if sector and "feedback_boosts" in behavior_profile:
             boost = float(behavior_profile["feedback_boosts"].get(sector, 0))
-        
+
         # Cap feedback influence at ±20 to prevent bias explosion
         return max(-20.0, min(20.0, boost))
 
     def calculate_match_gap(self, user_skills: list, row: dict, base_score: float, semantic_score: float):
         required_skills = row.get('required_skills', [])
         _, _, missing = self.calculate_skill_match(user_skills, required_skills)
-        
+
         if not missing:
             return {
                 "missing_skills": [],
@@ -96,23 +116,23 @@ class InternshipRecommender:
                 "estimated_score_if_completed": round(base_score, 2),
                 "recommended_focus_order": []
             }
-            
+
         # Skill impact analysis
         # How much would the score increase if each missing skill was added?
         # Current skill_match = matched / total
         total_req = len(required_skills)
         impact_per_skill = (0.5 * (1.0 / total_req) * 100) if total_req > 0 else 0
-        
-        # Rank skills by impact (mocking specific skill rarity impact if needed, 
+
+        # Rank skills by impact (mocking specific skill rarity impact if needed,
         # but here we follow the "impact on score" rule from PRD)
         focus_order = sorted(missing, key=lambda x: impact_per_skill, reverse=True)
-        
+
         # Estimated score if ALL missing skills were completed
         # If skills completed, skill_match becomes 100%
         # New base_score = (0.5 * 1.0) + (0.3 * semantic) + (0.1 * sector) + (0.1 * location)
         # For simplicity, we can estimate it as base_score + (missing_count * impact_per_skill)
         estimated_final = min(100, base_score + (len(missing) * impact_per_skill))
-        
+
         return {
             "missing_skills": missing,
             "skill_impact_score": round(len(missing) * impact_per_skill, 2),
@@ -122,9 +142,12 @@ class InternshipRecommender:
         }
 
     def recommend(self, user_profile: dict, filters: dict = None):
-        if self.internships_df is None or self.internships_df.empty or self.internship_vectors is None:
+        if self.internships_df is None or self.internships_df.empty:
             print("⚠️ Recommender not ready or no internships available.")
             return []
+
+        # Ensure Transformer embeddings and Model are loaded (Lazy Loading triggered here)
+        self._ensure_transformer_embeddings()
 
         # Extract filters
         filters = filters or {}
@@ -140,12 +163,14 @@ class InternshipRecommender:
         print(f"📊 Recommendation Filter: {location_filter}, min_score: {min_score_filter}, limit: {limit}")
         print(f"📊 User Profile: roles={target_role}, skills={len(user_skills)}")
 
-        # Step 1: Precompute User semantic vector
         user_text = target_role + " " + " ".join(user_skills)
-        user_vector = self.tfidf_vectorizer.transform([user_text])
-        
-        # Step 2: Calculate Semantic Similarity
-        semantic_similarities = cosine_similarity(user_vector, self.internship_vectors).flatten()
+
+        # Step 1: Generate User Embedding using Transformer
+        user_embedding = model_loader.model.encode(user_text, convert_to_tensor=True)
+
+        # Step 2: Calculate Semantic Similarity using Transformer
+        # We use Cosine Similarity between user embedding and internship embeddings
+        semantic_similarities = util.cos_sim(user_embedding, self.internship_embeddings_transformer).flatten().tolist()
 
         # Step 3: Fetch Behavior Profile
         user_id = str(user_profile.get('_id', ''))
@@ -164,18 +189,16 @@ class InternshipRecommender:
                 # Add more specific logic if needed for hybrid
 
             skill_match_pct, matched, missing = self.calculate_skill_match(user_skills, row.get('required_skills', []))
-            
+
             # Minimum threshold
             if skill_match_pct < 0.05:
                 continue
-                
+
             semantic_score = float(semantic_similarities[i])
-            if np.isnan(semantic_score):
-                semantic_score = 0.0
-                
+
             sector_score = calculate_sector_match(preferred_sector, row.get('sector'))
             location_score = calculate_location_match(preferred_location, row.get('location'))
-            
+
             # PRD Base Score (Updated Formula):
             # 0.5 * skill_match + 0.3 * semantic_similarity + 0.1 * sector_alignment + 0.1 * location_match
             base_score = (
@@ -184,14 +207,14 @@ class InternshipRecommender:
                 0.1 * sector_score +
                 0.1 * location_score
             ) * 100
-            
+
             # Safety check for NaN base_score
             if np.isnan(base_score):
                 base_score = 0.0
-            
+
             # Feedback Boost Layer
             feedback_boost = self.calculate_feedback_boost(row, behavior_profile)
-            
+
             # Final Score
             final_score = base_score + feedback_boost
 
@@ -202,7 +225,6 @@ class InternshipRecommender:
                 "company": row.get('company') or row.get('organization') or "N/A",
 
                 "apply_url": row.get('apply_url') or "#",
-                "department_page": row.get('department_page') or "#",
                 "location": row.get('location') or "Remote",
                 "score": round(float(final_score), 2),
                 "score_breakdown": {
@@ -220,7 +242,7 @@ class InternshipRecommender:
                 },
                 "gap_analysis": self.calculate_match_gap(user_skills, row, base_score, semantic_score)
             }
-            
+
             # Filter by min_score if provided
             if final_score >= min_score_filter:
                 results.append(internship_data)

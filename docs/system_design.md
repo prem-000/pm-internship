@@ -1,4 +1,4 @@
-# System Design & Architecture — AIRE v2.3.2
+# System Design & Architecture — AIRE v2.4.0
 
 ## 1. High-Level Architecture
 AIRE is built on a **service-oriented backend** architecture using FastAPI for high-performance async operations and MongoDB Atlas for flexible, schema-less user profiling.
@@ -19,8 +19,8 @@ AIRE is built on a **service-oriented backend** architecture using FastAPI for h
  │       │               │                   │                │       │
  │  ┌────▼───────────────▼───────────────────▼────────────────▼────┐  │
  │  │                   Core Services Layer                         │  │
- │  │  • HPIS Merge Engine    • GeminiService   • SkillGapService   │  │
- │  │  • Adaptive Recommender • AnalyticsStore  • ProfileHelper     │  │
+ │  │ • ModelLoader (Lazy)   • GeminiService   • SkillGapService    │  │
+ │  │ • HPIS Merge Engine    • Adaptive Recommender • ProfileHelper  │  │
  │  └────────────────────────────┬───────────────────────────────────┘  │
  └───────────────────────────────┼─────────────────────────────────────┘
                                  │
@@ -37,17 +37,22 @@ AIRE is built on a **service-oriented backend** architecture using FastAPI for h
 ## 2. Core Modules
 
 ### 2.1 Adaptive Recommendation Engine (`recommender.py`)
-A multi-stage hybrid scoring system:
+A multi-stage hybrid scoring system, now utilizing **Transformer Embeddings** for the semantic layer:
 
 | Stage | Weight | Description |
 |-------|--------|-------------|
-| Semantic Layer | ~70% | TF-IDF + Cosine Similarity of user skills vs. internship description |
+| Semantic Layer | ~70% | **SentenceTransformer (`all-MiniLM-L6-v2`)** embeddings + Cosine Similarity |
 | Skill Match | Inline | Fuzzy + exact normalized skill matching |
 | Sector Alignment | ~20% | Historical sector preference from interaction history |
 | Location Match | ~10% | Remote vs. city preference alignment |
 | Behavioral Boost | ±20pts | Adaptive adjustment based on `viewed`, `saved`, `applied`, `rejected` actions |
 
-### 2.2 Resume Intelligence Pipeline (`services/resume_service.py`)
+### 2.2 Model Loader Utility (`utils/model_loader.py`)
+Introduced in v2.4 to handle infrastructure constraints:
+- **Lazy Singleton**: Initializes the `SentenceTransformer` only when `model_loader.model` is first accessed.
+- **Infrastructure Safety**: Ensures the heavy model isn't loaded during startup, allowing deployment on 512MB RAM environments.
+
+### 2.3 Resume Intelligence Pipeline (`services/resume_service.py`)
 A modular, two-step NLP pipeline:
 
 **Step 1 — Parse (Never writes to DB):**
@@ -60,7 +65,7 @@ A modular, two-step NLP pipeline:
 2. HPIS Merge Logic: Manual entries are always authoritative. AI data enriches, never overwrites.
 3. Profile Strength recalculated after merge.
 
-### 2.3 Skill Gap Service (`services/skill_gap_service.py`)
+### 2.4 Skill Gap Service (`services/skill_gap_service.py`)
 Introduced in v2.2 — runs on demand when a user clicks an internship.
 
 **Pipeline:**
@@ -78,7 +83,7 @@ Send missing skills to Gemini for explanation
 Return structured JSON response
 ```
 
-### 2.4 Gemini AI Interface (`gemini_service.py`)
+### 2.5 Gemini AI Interface (`gemini_service.py`)
 Centralized service for all generative AI operations:
 
 | Method | Purpose |
@@ -147,10 +152,10 @@ Centralized service for all generative AI operations:
 
 ## 5. Performance
 
-- **Pre-computed TF-IDF**: Fitted at server startup — recommendation inference < 500ms.
+- **Lazy Transformer Load**: Heavy NLP models are deferred until the first relevant request, keeping startup memory < 150MB.
 - **Async I/O**: All DB and Gemini calls are `async/await` — no blocking on I/O.
 - **Skill Cache**: When Gemini extracts skills from a description, results are cached to the internship document, preventing re-computation.
-- **Lazy NLP Load**: Transformer models loaded on first request to optimize startup time.
+- **Build-stage Caching**: Transformers are pre-downloaded during the build step on Render to prevent runtime timeouts.
 
 ---
 

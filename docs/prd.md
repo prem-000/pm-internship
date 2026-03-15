@@ -133,3 +133,37 @@ Responsibilities:
 - The feature must extend the existing recommendation router.
 - User profile data must not be modified during skill gap retrieval.
 - Missing skills must be computed dynamically.
+
+## 14. PRD Update — Lazy Model Loading & Deployment Optimization (v2.4)
+
+### 14.1 Feature Overview
+To ensure successful deployment on restricted infrastructure (e.g., Render Free Tier with 512MB RAM), the system must implement lazy loading for all heavy transformer models. Heavy models such as `SentenceTransformer` must not be initialized during server startup.
+
+### 14.2 Key Requirements
+- **Deferred Initialization**: Models must only load when an endpoint requiring AI processing is first called.
+- **Low Memory Footprint**: The initial server memory usage must remain below 150MB.
+- **Model Efficiency**: Use optimized, lightweight models (e.g., `all-MiniLM-L6-v2`) for semantic similarity.
+- **Build-time Model Caching**: Heavy model files should be pre-downloaded during the build stage to prevent runtime network timeouts.
+
+### 14.3 Implementation Architecture (Model Loader)
+A global `ModelLoader` service will manage the lifecycle of AI models:
+1. API server starts (Transformers uninitialized).
+2. First request to `/api/recommend/` triggers the loader.
+3. Loader initializes the model into memory.
+4. Subsequent requests reuse the loaded instance.
+
+### 14.4 Performance Targets (Cold Start)
+| Metric | Target |
+| :--- | :--- |
+| API server start | < 3 seconds |
+| Initial AI Request (Model Load) | 8–15 seconds |
+| Subsequent AI Requests | 300–800 ms |
+
+### 14.5 Success Metrics
+- **Deployment Stability**: 0 crashes on 512MB RAM during startup.
+- **Model Availability**: 100% success rate in model initialization on-demand.
+
+## 15. Success Metrics
+- **Profile Completion Rate**: Target > 80% for 90% of active users.
+- **Resume Upload Adoption**: Target > 50% of new signups.
+- **Recommendation Relevance**: Improvement in CTR on recommended internships.

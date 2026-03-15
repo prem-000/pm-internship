@@ -67,7 +67,8 @@ A two-step workflow to give users full control before committing data to their p
 - **Auth**: Required
 - **Body**: Optional filters `{ "location": "remote", "sector": "AI" }`
 - **Requirements**: User profile must have `skills` and `target_roles` set.
-- **Behavior**: Hybrid scoring using TF-IDF Semantic + Skill Match + Sector/Location alignment + Behavioral feedback boost.
+- **Behavior**: Hybrid scoring using **Transformer-based Semantic Similarity** + Skill Match + Sector/Location alignment + Behavioral feedback boost.
+- **Note (v2.4)**: The first call to this endpoint after server startup will trigger the lazy loading of the Transformer model (approx. 8-15s delay). Subsequent calls are sub-second.
 - **Returns**:
 ```json
 {
