@@ -37,9 +37,6 @@ class ProfileUpdateRequest(BaseModel):
     github_url: Optional[str] = None
     portfolio_url: Optional[str] = None
 
-class AdminLogin(BaseModel):
-    email: EmailStr
-    password: str
 
 class LanguageUpdateRequest(BaseModel):
     preferred_language: str
@@ -107,8 +104,7 @@ class GlobalLanguageSettings(BaseModel):
     supported_languages: List[str] = ["en", "hi", "ta"]
     default_language: str = "en"
     fallback_language: str = "en"
-    roadmap_language_mode: str = "match_user" # match_user | always_english | admin_selected
-    admin_selected_language: Optional[str] = "en"
+    roadmap_language_mode: str = "match_user" # match_user | always_english
     internship_content_mode: str = "english_only" # english_only | multilingual
 
 class LanguageSettingsUpdate(BaseModel):
@@ -116,5 +112,4 @@ class LanguageSettingsUpdate(BaseModel):
     default_language: Optional[str] = None
     fallback_language: Optional[str] = None
     roadmap_language_mode: Optional[str] = None
-    admin_selected_language: Optional[str] = None
     internship_content_mode: Optional[str] = None

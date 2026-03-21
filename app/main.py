@@ -9,7 +9,6 @@ from .routers import (
     auth_router, 
     user_router, 
     recommendation_router, 
-    admin_router, 
     interaction_router as feedback_router, 
     internship_router,
     analytics_router,
@@ -79,7 +78,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(user_router.router, prefix="/api")
 app.include_router(recommendation_router.router, prefix="/api")
-app.include_router(admin_router.router, prefix="/api")
+
 app.include_router(feedback_router.router, prefix="/api")
 app.include_router(internship_router.router, prefix="/api")
 app.include_router(analytics_router.router, prefix="/api")

@@ -145,25 +145,7 @@ A two-step workflow to give users full control before committing data to their p
 
 ---
 
-## 7. Admin Control (`/admin`)
-
-### Admin Login
-`POST /admin/login`
-- **Body**: `{ "email": "...", "password": "..." }`
-- **Returns**: Admin JWT access token.
-
-### Dashboard Stats
-`GET /admin/stats`
-- **Auth**: Admin token required.
-- **Returns**: Total users, internship count, blocked users, and platform activity summaries.
-
-### System Logs (WebSocket)
-`WS /admin/ws/logs`
-- **Behavior**: Continuous stream of real-time system events and background process logs.
-
----
-
-## 8. Health Checks
+## 7. Health Checks
 - `GET /health` — Basic livelihood check.
 - `GET /api/health` — Extended health check (DB + service connections).
 

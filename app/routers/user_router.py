@@ -45,7 +45,7 @@ async def get_my_info(current_user: dict = Depends(get_current_user)):
         "role": user.get("role", "Student"),
         "department": user.get("university") or user.get("education") or "N/A",
         "member_since": (user.get("created_at") or datetime.utcnow()).strftime("%Y-%m-%d"),
-        "plan": "Premium" if user.get("role") == "admin" else "Free"
+        "plan": "Free"
     }
 
 @router.put("/profile/update")

@@ -15,9 +15,6 @@ class Settings(BaseSettings):
 
     GOOGLE_API_KEY: str = os.getenv("GEMINI_API_KEY", "")  # Render env var name
 
-    ADMIN_DEFAULT_EMAIL: str = os.getenv("ADMIN_DEFAULT_EMAIL", "admin@gmail.com")
-    ADMIN_DEFAULT_PASSWORD: str = os.getenv("ADMIN_DEFAULT_PASSWORD", "strongpassword")
-
     class Config:
         env_file = ".env"
 

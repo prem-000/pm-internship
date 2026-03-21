@@ -24,7 +24,6 @@ The backend exposes five primary routers:
 2. `user_router.py`: Manages user profile retrieval and manual updates.
 3. `resume_router.py`: (New) Handles resume upload, parsing, and confirmation.
 4. `recommendation_router.py`: Computes adaptive recommendations.
-5. `admin_router.py`: Provides administrative controls and analytics.
 
 ## 6. Resume Router Endpoints
 - `POST /api/profile/parse-resume`: Step 1 - Accept a PDF/DOCX file and return parsed data (no DB update).

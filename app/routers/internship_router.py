@@ -87,18 +87,13 @@ async def get_gap_analysis(
 
     # 4. Gemini Roadmap
     global_settings = db.global_settings.find_one({"_id": "global_settings"}) or {
-        "roadmap_language_mode": "match_user",
-        "admin_selected_language": "en"
+        "roadmap_language_mode": "match_user"
     }
 
     roadmap_mode = global_settings.get("roadmap_language_mode", "match_user")
     
     if roadmap_mode == "match_user":
         target_lang = current_user.get("preferred_language", "en")
-    elif roadmap_mode == "always_english":
-        target_lang = "en"
-    elif roadmap_mode == "admin_selected":
-        target_lang = global_settings.get("admin_selected_language", "en")
     else:
         target_lang = "en"
 
